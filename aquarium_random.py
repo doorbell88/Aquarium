@@ -1,6 +1,6 @@
 # AQUARIUM
 """
-Create a text-based aquarium to view in terminal
+Create a text-based aquarium to view in terminal with a randomized background and ecosystem
 """
 
 from termcolor import colored, cprint
@@ -26,7 +26,7 @@ HEIGHT = int( stdout.read() ) - 1
 # if terminal is fullscreen, limiting the height provides smoother "video"
 if HEIGHT > 50:
 	HEIGHT = 50
-	# DELAY = 0.08
+	DELAY = 0.08
 
 
 degree_symbol = unichr(176)			# For drawing bubbles
@@ -668,11 +668,11 @@ class Baracuda(Fish):
 
 	def left(self):
 		return 	[		\
-		['<-==^=-<']
+		['<==^=-<']
 		]
 	def right(self):
 		return 	[		\
-		['>-=^==->']
+		['>-=^==>']
 		]
 
 
@@ -996,7 +996,7 @@ class Generator(object):
 
 	
 
-
+# Good for generating seafloor background objects (dunes, coral, etc.)
 class SeafloorGenerator(Generator):
 	def __init__(self):
 		Generator.__init__(self)
@@ -1014,7 +1014,7 @@ class SeafloorGenerator(Generator):
 		self.kelp_gen = []
 
 
-
+# Good for generating fish and whales
 class EcosystemGenerator(Generator):
 	def __init__(self):
 		Generator.__init__(self)
@@ -1107,7 +1107,7 @@ Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
 Eco_Whales = []
 if WIDTH > 45:
 	Eco.generate(	[Whale, BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[	0,2], ['blue','white','cyan'], Eco_Whales)
+					[0,2], ['blue','white','cyan'], Eco_Whales)
 
 
 

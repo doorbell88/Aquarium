@@ -669,11 +669,11 @@ class Baracuda(Fish):
 
 	def left(self):
 		return 	[		\
-		['<-==^=-<']
+		['<==^=-<']
 		]
 	def right(self):
 		return 	[		\
-		['>-=^==->']
+		['>-=^==>']
 		]
 
 
@@ -1036,20 +1036,20 @@ tuna_follower = Tuna([12,15], 'magenta')
 # 								FollowType, FollowDistance, LeadType, Color
 
 # --- SEA MONKEYS! ---#
-SeaMonkeyFactory = SchoolFactory(	'SM', Circle, 40, [HEIGHT*1/3,WIDTH/2], SeaMonkey,
+SeaMonkeyFactory = SchoolFactory(	'SM', Tree, 40, [HEIGHT*1/3,WIDTH/2], SeaMonkey,
 									'calmRandomFollow', 2, 'randomMove', 'green')
 
 
 # Sea Monkey Schools
 smSchool = SeaMonkeyFactory.CreateSchool(	SchoolType=Circle, LeadType='calmRandomMove')
 
-smSchool2 = SeaMonkeyFactory.CreateSchool(	SchoolType=ShyNeighbor, SchoolSize=15, \
+smSchool2 = SeaMonkeyFactory.CreateSchool(	SchoolType=Line, SchoolSize=15, \
 											SchoolCenter=[HEIGHT*2/3,WIDTH*1/7], Color='red')
 
 
 
 # --- MINNOWS! --- #
-MinnowFactory = SchoolFactory(	'M', Monarch, 8, [HEIGHT/3,WIDTH*6/7], Minnow,
+MinnowFactory = SchoolFactory(	'M', Neighbor, 8, [HEIGHT/3,WIDTH*6/7], Minnow,
 									'randomFollow', 2, 'randomMove', 'magenta')
 
 # Minnow Schools
