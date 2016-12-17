@@ -1,6 +1,6 @@
 # AQUARIUM
 """
-Create a text-based aquarium to view in terminal with a randomized background and ecosystem
+Create a text-based aquarium to view in terminal
 """
 
 # from termcolor import colored, cprint
@@ -130,6 +130,7 @@ class SchoolFactory(object):
 		self.FollowType = FollowType
 		self.FollowDistance = FollowDistance
 		self.LeadType = LeadType
+		# self.MaxSpeed = MaxSpeed
 		self.Color = Color
 
 	def CreateSchool(self, **kwargs):
@@ -531,10 +532,7 @@ class MovingThing(Thing):
 			if dx != 0:
 				self.direction[1] = -( dx/abs(dx) )
 
-			# self.speed += self.accelerate		# Get ready to flee quickly
-			self.move()							# Move straight away from the enemy
-			# self.speed = self.maxspeed
-			self.move()							# Move straight away from the enemy
+			self.speed += self.accelerate		# Get ready to flee quickly
 			self.move()							# Move straight away from the enemy
 
 			# Return whether it is fleeing or not (useful for fleeing several things, with varying priority)
@@ -767,7 +765,7 @@ class NonMovingThing(Thing):
 		self.size = [0,0]
 		self.picture = [['']]
 
-		# self.draw()
+		self.draw()
 
 
 
@@ -874,24 +872,6 @@ class BigDune(Dune):
 	# 	['~`. . . . . . . . . `~'],				
 	# 	]
 
-class HugeDune(Dune):
-	def image(self):
-		return [							
-		['RRRRRR,.~"""""""~. ,RRRRR'],
-		['RRRR/. . . . . . . .\\RRRR'],
-		['RR/ . . . . . . . . . \\RR'],				
-		['R/ . . . . . . . . . . \\R'],				
-		['/ . . . . . . . . . . . \\'],				
-		['~` . . . . . . . . . . `~'],				
-		]
-
-	# def image(self):
-	# 	return [							
-	# 	['      ,.~"""""~. ,    '],
-	# 	['   /. . . . . . . .\\  '],
-	# 	[' / . . . . . . . . . \\'],				
-	# 	['~`. . . . . . . . . `~'],				
-	# 	]
 
 # Corals
 class TreeCoral(NonMovingThing):
@@ -983,89 +963,6 @@ class LongKelp(NonMovingThing):
 
 
 
-# Generates random objects for start
-class Generator(object):
-	def __init__(self):
-
-		self.colors = ['red','green','blue','cyan','magenta','white']
-
-		# Bounds 
-		self.left = 1
-		self.right = WIDTH - 1
-		self.top = Water.position + 1
-		self.bottom = HEIGHT - 1
-
-	def generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list):
-		for species in type_list:
-
-			n = randint(n_bounds[0], n_bounds[1])
-			if n != 0:
-				i = 0
-				while i < n:
-					y = 0
-					x = 0
-					color = choice(color_list)
-					current_item = species([y,x], color)
-
-					# To get size of current species being drawn
-					if i == 0:
-						current_item.getPicture()
-						current_item_size = current_item.size
-
-					y = randint(pos_bounds[0][0], pos_bounds[0][1])
-					x = randint(pos_bounds[1][0], pos_bounds[1][1] - current_item_size[1])
-					current_item.position = [y,x]
-					gen_list.append(current_item)
-					# NonMovingThings won't draw themselves upon instantiation, so draw now
-					if isinstance(current_item, NonMovingThing):
-						current_item.draw()
-					i += 1
-
-	def DrawList(self, draw_list):
-		for item in draw_list:
-			item.draw()
-
-	
-
-# Good for generating seafloor background objects (dunes, coral, etc.)
-class SeafloorGenerator(Generator):
-	def __init__(self):
-		Generator.__init__(self)
-		self.left = -7
-		self.right = WIDTH + 7
-		self.bottom = HEIGHT + 1
-		self.top = Sand.position + 1
-
-		self.dune_list = [SmallDune, BigDune]
-		self.coral_list = [TreeCoral, BrainCoral]
-		self.kelp_list = [Kelp, LongKelp]
-
-		self.dune_gen = []
-		self.coral_gen = []
-		self.kelp_gen = []
-
-
-# Good for generating fish and whales
-class EcosystemGenerator(Generator):
-	def __init__(self):
-		Generator.__init__(self)
-		self.left = 1
-		self.right = WIDTH - 1
-		self.bottom = HEIGHT - 1
-		self.top = Water.position + 1
-
-		self.fish_list = [SeaMonkey, Minnow, AngelFish, Tuna, Baracuda]
-		self.whale_list = [Whale, BabyWhale]
-
-		self.fish_gen = []
-		self.whale_gen = []
-
-	
-
-
-
-
-
 
 ##### MAIN #####
 
@@ -1074,108 +971,71 @@ class EcosystemGenerator(Generator):
 
 Aquarium = Window("blue")
 
-Water = Surface(HEIGHT*1/7, "cyan")
-Water.draw()
-Water.drawAbove()
-Sand = Surface(HEIGHT*5/6, "yellow")
-# Sand.draw()
-# Sand.drawUnder()
-
-
-
-############################################################################
-# generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
-############################################################################
-
 # The order in which things are drawn goes from background -> midground -> foreground
-SF = SeafloorGenerator()
-Eco = EcosystemGenerator()
-
-scale = WIDTH/55
-if scale < 1:
-	scale = 1
-
 
 #.....BACKGROUND.....#
-
-SF_dunes = []
-SF.generate(	[SmallDune,BigDune,HugeDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,6*scale], ['yellow'], SF_dunes)
-
-
-SF_kelp = []
-SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], ['green'], SF_kelp)
+kelp_bg1 = Kelp([HEIGHT-14, 15], 'green')
 
 
 
 
 #.....MIDGROUND.....#
-# Draw sand 
+#surfaces
+Water = Surface(HEIGHT*1/5, "cyan")
+Water.draw()
+Water.drawAbove()
+Sand = Surface(HEIGHT*5/6, "yellow")
+# Sand.draw()
 Sand.drawUnder()
 
-SF.generate(	[SmallDune,BigDune,HugeDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,6*scale], ['yellow'], SF_dunes)
-
-
-SF_TreeCoral = []
-SF.generate(	[TreeCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[3,8*scale], ['red','magenta','blue','cyan'], SF_TreeCoral)
-
-
-SF_BrainCoral = []
-SF.generate(	[BrainCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[1,2*scale], ['red','magenta','blue','cyan'], SF_BrainCoral)
-
-
-SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], ['green'], SF_kelp)
-
-
-
-
-#.....ECOSYSTEM.....#
-
-Eco_Fishies = []
-Eco.generate(	[Minnow, AngelFish, Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[1,3], SF.colors, Eco_Fishies)
-
-Eco_Baracuda = []
-Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[1,1], SF.colors, Eco_Baracuda)
-
-Eco_Whales = []
-if WIDTH > 45:
-	Eco.generate(	[Whale, BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-					[0,2], ['blue','white','cyan'], Eco_Whales)
-
-
+# #dunes
+big_dune0 = BigDune([Sand.position-2, -7], Sand.color)				#leftmost
+dune1 = SmallDune([Sand.position, -WIDTH/3], Sand.color)					#left
+big_dune1 = BigDune([Sand.position, WIDTH*1/5], Sand.color)			#left
+big_dune2 = BigDune([Sand.position-3, WIDTH*3/4], Sand.color)		#right
+dune2 = SmallDune([Sand.position, WIDTH*2/3 + 3], Sand.color)				#right
+dune3 = SmallDune([HEIGHT-2, WIDTH*4/7], Sand.color)							#front
 
 
 
 #.....FOREGROUND.....#
 #coral
-
-SF_kelp_front = []
-SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
-				[1*scale,2*scale], ['green'], SF_kelp_front)
-
-SF_dunes_front = []
-SF.generate(	[HugeDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-				[1*scale,2*scale], ['yellow'], SF_dunes_front)
+fire_coral1 = TreeCoral([Sand.position-2, WIDTH-9], 'magenta')
+fire_coral2 = TreeCoral([Sand.position-1, WIDTH/2], 'red')
+brain = BrainCoral([HEIGHT-4, WIDTH/3], 'magenta')
+kelp1 = Kelp([HEIGHT-16, 7], 'green')
+longkelp1 = LongKelp([Water.position+2, WIDTH-10], 'green')
+longkelp2 = LongKelp([Water.position+5, 12], 'green')
 
 
 
-#----------------------------------------------------------------------------------
+
 #set eveything so far as the background environment
 Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
+
 #----------------------------------------------------------------------------------
 
 
+# CREATE CREATURES
+# ([position-Y,X], speed, color)
+minnow1 = Minnow([10,5], 'red')
+minnow2 = Minnow([HEIGHT-10,WIDTH-10], 'red')
+minnow3 = Minnow([HEIGHT-12,WIDTH-12], 'magenta')
+
+guppy1 = AngelFish([20,40], 'green')
+guppy2 = AngelFish([22,35], 'cyan')
+
+tuna1 = Tuna([30,5], 'yellow')
+tuna2 = Tuna([35,10], 'white')
 
 
+moby = Whale([HEIGHT*2/5,15], 'blue')
+willy = Whale([23,WIDTH-20], 'white')
+baby_moby = BabyWhale([15,5], 'blue')
 
 
+# Followers
+tuna_follower = Tuna([12,15], 'magenta')
 
 
 
@@ -1185,30 +1045,25 @@ Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
 # 								SchoolName, SchoolType, SchoolSize, SchoolCenter, AnimalType, \
 # 								FollowType, FollowDistance, LeadType, Color
 
-School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
-School_Colors = ['blue','cyan','green','red','magenta','white']
-
 # --- SEA MONKEYS! ---#
-SeaMonkeyFactory = SchoolFactory(	'SM', Circle, 30, [HEIGHT*1/3,WIDTH/2], SeaMonkey,
+SeaMonkeyFactory = SchoolFactory(	'SM', Tree, 40, [HEIGHT*1/3,WIDTH/2], SeaMonkey,
 									'calmRandomFollow', 2, 'randomMove', 'green')
 
 
 # Sea Monkey Schools
-smSchool = SeaMonkeyFactory.CreateSchool(	SchoolType=choice(School_Types), SchoolSize=randint(20,40), \
-											LeadType='calmRandomMove', Color=choice(School_Colors) )
+smSchool = SeaMonkeyFactory.CreateSchool(	SchoolType=Circle, LeadType='calmRandomMove')
 
-smSchool2 = SeaMonkeyFactory.CreateSchool(	SchoolType=choice(School_Types), SchoolSize=randint(10,30), \
-											SchoolCenter=[HEIGHT*2/3,WIDTH*1/7], \
-											Color=choice(School_Colors) )
+smSchool2 = SeaMonkeyFactory.CreateSchool(	SchoolType=Line, SchoolSize=15, \
+											SchoolCenter=[HEIGHT*2/3,WIDTH*1/7], Color='red')
 
 
 
 # --- MINNOWS! --- #
-MinnowFactory = SchoolFactory(	'M', choice(School_Types), randint(5,10), [HEIGHT/3,WIDTH*6/7], Minnow,
-									'randomFollow', 2, 'randomMove', 'red')
+MinnowFactory = SchoolFactory(	'M', Neighbor, 8, [HEIGHT/3,WIDTH*6/7], Minnow,
+									'randomFollow', 2, 'randomMove', 'magenta')
 
 # Minnow Schools
-mSchool = MinnowFactory.CreateSchool(Color=choice(School_Colors) )
+mSchool = MinnowFactory.CreateSchool()
 
 
 ###############################################################################################
@@ -1234,10 +1089,11 @@ bub_name = ''
 #variable for changing which coral the school is going around
 cor = 0
 #list of corals to choose from (when following)
-coral_list = SF_kelp + SF_kelp_front + SF_BrainCoral + SF_TreeCoral
+coral_list = [fire_coral1, fire_coral2, kelp1, kelp_bg1, longkelp1, longkelp2, brain]
 
 
 while True:
+
 
 	#randomly create bubbles
 	if bub % randint(1,15) == 5:
@@ -1254,22 +1110,18 @@ while True:
 
 
 	# Move all (independent) creatures
-	for fish in Eco_Fishies:
-		fish.randomMove()
-		for baracuda in Eco_Baracuda:
-			fish.flee(baracuda, 3)
-		for whale in Eco_Whales:
-			fish.flee(whale, 6)
+	minnow1.randomMove()
+	minnow2.randomMove()
+	minnow3.randomMove()
+	guppy1.randomMove()
+	guppy2.randomMove()
+	tuna1.randomMove()
+	tuna2.randomMove()
+	moby.move()
+	willy.calmRandomMove()
+	baby_moby.randomFollow(moby, 7)
 
-	for baracuda in Eco_Baracuda:
-		baracuda.calmRandomMove()
-		# for fish in Eco_Fishies:
-		# 	baracuda.calmRandomFollow(fish, 1)
-		baracuda.follow(baracuda.findNearest(Eco_Fishies), 2)
-		baracuda.flee(baracuda.findNearest(Eco_Whales), 4)
-
-	for whale in Eco_Whales:
-		whale.calmRandomMove()
+	tuna_follower.calmRandomFollow(tuna_follower.findNearest([tuna1, tuna2, willy]), 7)
 
 
 
@@ -1280,9 +1132,36 @@ while True:
 	mSchool.automate()
 
 
+	# ----------- SCHOOL SPECIAL BEHAVIORS -----------#
+
+	##### Sea Mokeys (green) #####
+	for student in smSchool.students:
+		student.flee(willy, 5)					# smSchool flees willy
+
+		for minnow in mSchool.students:			# smSchool flees from minnows
+			student.flee(minnow, 3)
 
 
-	
+
+
+
+	##### Sea Mokeys (red) #####
+	for student in smSchool2.students:
+		student.flee(willy, 5)
+
+		# smSchool flees from minnows
+		student.flee(student.findNearest(smSchool.students), 3)
+
+
+
+
+	##### Minnows (magenta) #####
+	for student in mSchool.students:
+		student.flee(willy, 7)
+
+		# pursue nearby seamonkeys
+		student.follow(student.findNearest(smSchool.students + smSchool2.students), 2)
+
 
 	#------------------------------------------------------------
 	# Alternate between grouping around different corals
@@ -1292,59 +1171,27 @@ while True:
 		if cor % 100 == 0:
 			smSchool_desire = choice(coral_list)
 		for student in smSchool.students:
-			student.randomFollow(smSchool_desire, 4)
+			student.randomFollow(smSchool_desire, 2)
 
 	# Red SeaMonkeys
 	if cor % 120 < 50:
 		if cor % 100 == 0:
 			smSchool2_desire = choice(coral_list)
 		for student in smSchool2.students:
-			student.follow(smSchool2_desire, 4)
+			student.follow(smSchool2_desire, 2)
 
 	# Minnows
 	if cor % 200 < 50:
 		if cor % 100 == 0:
 			mSchool_desire = choice(coral_list)
 		for student in mSchool.students:
-			student.follow(mSchool_desire, 4)
+			student.follow(mSchool_desire, 2)
 
 	#------------------------------------------------------------
 	if cor >= 1000:
 		cor = 0		#reset count
 	cor += 1		#increment count
 	#------------------------------------------------------------
-
-
-
-	# ----------- SCHOOL SPECIAL BEHAVIORS -----------#
-
-	##### Sea Mokeys (green) #####
-	for student in smSchool.students:
-		# Flee
-		student.flee(student.findNearest(Eco_Whales + Eco_Baracuda), 3)
-		for minnow in mSchool.students:
-			student.flee(minnow, 4)
-	
-
-
-	##### Sea Mokeys (red) #####
-	for student in smSchool2.students:
-		# Flee
-		student.flee(student.findNearest(Eco_Whales + Eco_Baracuda), 3)
-		# if student.flee(student.findNearest(Eco_Whales + Eco_Baracuda), 3):
-			# student.move()
-		for minnow in mSchool.students:
-			student.flee(minnow, 4)
-	
-
-
-	##### Minnows (magenta) #####
-	for student in mSchool.students:
-		student.flee(student.findNearest(Eco_Whales + Eco_Baracuda), 5)
-		# Chase Sea Monkeys
-		student.follow(student.findNearest(smSchool.students + smSchool2.students), 2)
-
-
 
 
 
@@ -1355,13 +1202,9 @@ while True:
 	for bubble in bub_list:
 		bubble.drift()
 
-
-	# Draw long kelp in the front
-	SF.DrawList(SF_kelp_front[scale:])
-	SF.DrawList(SF_dunes_front)
-	SF.DrawList(SF_kelp_front[:scale])
-
-
+	# Long kelp
+	longkelp1.draw()
+	longkelp2.draw()
 
 
 	# Display Aquarium and wait
