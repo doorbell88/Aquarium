@@ -1140,14 +1140,32 @@ Eco_Fishies = []
 Eco.generate(	[Minnow, AngelFish, Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
 				[1,3], SF.colors, Eco_Fishies)
 
+
 Eco_Baracuda = []
-Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[1,1], SF.colors, Eco_Baracuda)
+if WIDTH > 30:
+	Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
+					[0,1], SF.colors, Eco_Baracuda)
 
 Eco_Whales = []
+Eco_BabyWhales = []
+Eco_BabyWhaleFollower = []
 if WIDTH > 45:
-	Eco.generate(	[Whale, BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
+	Eco.generate(	[Whale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
 					[0,2], ['blue','white','cyan'], Eco_Whales)
+
+	Eco.generate(	[BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
+					[0,2], ['blue','white','cyan'], Eco_BabyWhales)
+
+	# For making a baby whale follow its mother
+	if len(Eco_Whales) == 2:
+		if len(Eco_BabyWhales) > 0:
+			# Consolidate list
+			Eco_BabyWhaleFollower.append( Eco_BabyWhales[-1] )
+			# Make calf same color as mother
+			Eco_BabyWhaleFollower[0].color = Eco_Whales[0].color
+	# Add the rest of the baby whales to the Eco_Whales list
+	Eco_Whales += Eco_BabyWhales
+
 
 
 
@@ -1269,7 +1287,14 @@ while True:
 		baracuda.flee(baracuda.findNearest(Eco_Whales), 4)
 
 	for whale in Eco_Whales:
-		whale.calmRandomMove()
+		whale.calmRandomMove()		# This includes the baby whale follower (adds spunk)
+
+	# If there's a baby whale following a mother whale, follow it
+	if len(Eco_BabyWhaleFollower) == 1:
+		Eco_BabyWhaleFollower[0].randomFollow(Eco_Whales[0], 7)
+
+	
+
 
 
 
