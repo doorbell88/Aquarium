@@ -10,4 +10,8 @@ Automatically adjusts to the size of your terminal, so you can have any aquarium
 
     aquarium.py                 --  Randomizes the aquarium and fish ecosystem every time, so it's never the same.
     aquarium._playground.py     --  Always the same aquarium, but easier to mess around with if you want to try
-    
+
+
+Here's a screenshot from aquarium.py running fullscreen:
+
+![Aquarium Fullscreen](https://github.com/doorbell88/Aquarium/blob/master/image_fullscreen_kelp.png "Aquarium Fullscreen")
