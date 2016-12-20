@@ -14,10 +14,10 @@ Automatically adjusts to the size of your terminal, so you can have any aquarium
 
 Here's a screenshot from aquarium.py running fullscreen:
 
-![Aquarium Fullscreen](https://github.com/doorbell88/Aquarium/blob/master/image_fullscreen_kelp.png "Aquarium Fullscreen")
+![Aquarium Fullscreen](https://github.com/doorbell88/Aquarium/blob/master/Screenshots/image_fullscreen_kelp.png "Aquarium Fullscreen")
 
 Since aquarium adjusts to your terminal window size, you can have a shallow or skinny aquarium if you want some company while you work:
 
-![](https://github.com/doorbell88/Aquarium/blob/master/image_shallowAquarium.png "Shallow Aquarium")
+![](https://github.com/doorbell88/Aquarium/blob/master/Screenshots/image_shallowAquarium.png "Shallow Aquarium")
 
-![](https://github.com/doorbell88/Aquarium/blob/master/image_skinnyAquarium.png "Skinny Aquarium")
+![](https://github.com/doorbell88/Aquarium/blob/master/Screenshots/image_skinnyAquarium.png "Skinny Aquarium")
