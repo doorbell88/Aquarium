@@ -34,9 +34,9 @@ WIDTH = int( stdout.read() )
 stdout = Popen('tput lines', shell=True, stdout=PIPE).stdout
 HEIGHT = int( stdout.read() ) - 1
 # if terminal is fullscreen, limiting the height provides smoother "video"
-if HEIGHT > 50:
-	HEIGHT = 50
-	DELAY = 0.08
+#if HEIGHT > 50:
+#	HEIGHT = 50
+#	DELAY = 0.08
 
 
 degree_symbol = unichr(176)			# For drawing bubbles
@@ -90,7 +90,10 @@ class Window(object):
 		self.aquarium_box = []
 		self.aquarium_box_background = []
 
-		#create blank aquarium box
+		# clear screen
+		os.system('clear')
+
+		# create blank aquarium box
 		for y in range(self.height):
 			self.aquarium_box.append([" "] * self.width)
 
@@ -110,7 +113,8 @@ class Window(object):
 
 	def display(self):
 		# Clear screen and scrollback buffer
-		os.system("clear && printf '\e[3J' ")
+		#os.system("clear && printf '\e[3J' ")
+		os.system('tput cup 0 0')
 		# print
 		for row in range( len(self.aquarium_box) ):
 			print "".join(self.aquarium_box[row])
@@ -934,7 +938,7 @@ class LongKelp(NonMovingThing):
 		return [
 		[' V '],				
 		[' | '],				
-		[' |/'],				
+		['\| '],				
 		[' | '],
 		['\|/'],
 		[' | '],					
@@ -952,6 +956,33 @@ class LongKelp(NonMovingThing):
 		['\|/'],
 		[' | '],				
 		[' | '],
+		[' | '],
+		[' | '],				
+		[' |/'],				
+		[' | '],				
+		['\|/'],
+		['\| '],
+		[' |/'],				
+		[' | '],				
+		['\| '],				
+		[' | '],				
+		[' |/'],				
+		[' | '],
+		['\| '],				
+		[' | '],				
+		[' |/'],				
+		[' | '],				
+		['\|/'],
+		[' | '],					
+		['\|/'],								
+		[' |/'],
+		['\|/'],
+		[' | '],					
+		['\|/'],								
+		[' |/'],				
+		[' | '],				
+		['\| '],				
+		[' | '],				
 		[' | '],				
 		[' |/'],				
 		[' | '],				

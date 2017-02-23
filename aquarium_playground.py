@@ -90,7 +90,10 @@ class Window(object):
 		self.aquarium_box = []
 		self.aquarium_box_background = []
 
-		#create blank aquarium box
+		# clear screen
+		os.system('clear')
+
+		# create blank aquarium box
 		for y in range(self.height):
 			self.aquarium_box.append([" "] * self.width)
 
@@ -110,7 +113,8 @@ class Window(object):
 
 	def display(self):
 		# Clear screen and scrollback buffer
-		os.system("clear && printf '\e[3J' ")
+		#os.system("clear && printf '\e[3J' ")
+		os.system('tput cup 0 0')
 		# print
 		for row in range( len(self.aquarium_box) ):
 			print "".join(self.aquarium_box[row])
@@ -188,7 +192,7 @@ class School(object):
 		elif str(self.LeadType).lower() == "calmRandomMove".lower():
 			current_student.calmRandomMove()
 
-	# Direct which kind of FolloType
+	# Direct which kind of FollowType
 	def Follow(self, current_student, current_leader, distance):
 		if self.FollowType == "randomFollow":
 			current_student.randomFollow(current_leader, distance)
