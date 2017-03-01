@@ -1344,28 +1344,28 @@ while True:
 	# Alternate between grouping around different corals
 
 	# Green SeaMonkeys
-	if cor % 100 < 50:
+	if cor % 1000 < 50:
 		if cor % 100 == 0:
 			smSchool_desire = choice(coral_list)
 		for student in smSchool.students:
 			student.randomFollow(smSchool_desire, 4)
 
 	# Red SeaMonkeys
-	if cor % 120 < 50:
+	if cor % 1200 < 50:
 		if cor % 100 == 0:
 			smSchool2_desire = choice(coral_list)
 		for student in smSchool2.students:
 			student.follow(smSchool2_desire, 4)
 
 	# Minnows
-	if cor % 200 < 50:
+	if cor % 2000 < 50:
 		if cor % 100 == 0:
 			mSchool_desire = choice(coral_list)
 		for student in mSchool.students:
 			student.follow(mSchool_desire, 4)
 
 	#------------------------------------------------------------
-	if cor >= 1000:
+	if cor >= 10000:
 		cor = 0		#reset count
 	cor += 1		#increment count
 	#------------------------------------------------------------
