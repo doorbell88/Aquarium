@@ -8,6 +8,8 @@ from random import randint, choice
 from time import sleep, time
 from copy import deepcopy
 import os
+import sys
+import signal
 from subprocess import Popen, PIPE
 
 # since termcolor isn't a standard module, warn users who don't have it
@@ -37,6 +39,15 @@ degree_symbol = unichr(176)			# For drawing bubbles
 FarawayObject = type('test', (object,), {})()
 FarawayObject.position = [-1000, -1000]
 FarawayObject.size = [0,0]
+
+
+# ------- SPECIAL HANDLING FUNCTIONS ------- #
+def signal_handler(signum, frame):
+	# (Show the cursor again)
+	os.system('echo "\x1b[?25h"')
+	sys.exit()
+
+signal.signal(signal.SIGINT, signal_handler)
 
 
 # ------- FUNCTION DECORATORS ------- #
@@ -460,6 +471,9 @@ class MovingThing(Thing):
 			self.direction[0] += randint(-1,1)
 		if abs(self.direction[0]) > 1:
 			self.direction[0] = 0
+		if randint(1,500) == 1:
+			self.direction[1] *= -1
+			
 		#speed
 		# self.controlSpeed()
 		self.move()
@@ -696,6 +710,21 @@ class BabyWhale(Animal):
 		['/===_u`__)']				
 		]
 
+# Snail
+class Snail(Animal):
+	def __init___(self, position, color):
+		MovingThing.__init__(self, position, color)
+		self.maxspeed = 1
+
+	def left(self):
+		return 	[			\
+		['@']
+		]
+	def right(self):
+		return 	[		\
+		['@']
+		]
+
 # ------- DEBRIS ------- #
 
 # Bubbles!
@@ -719,7 +748,6 @@ class Bubble(Debris):
 		['o .'],
 		['.%s ' %(degree_symbol)]
 		] 
-
 
 # ------- NONMOVING THINGS ------- #
 
@@ -807,52 +835,56 @@ class SmallDune(Dune):
 	def image(self):
 		return [							
 		['RRR.~""~.RRR'],
-		['RR/. . . \\RR'],
-		['~`. . . . `~']				
+		['RR/, . . \RR'],
+		['~`, . . . `~']				
 		]
-
-	# def image(self):
-	# 	return [							
-	# 	['   .~""~.   '],
-	# 	['  /. . . \\  '],
-	# 	['~`. . . . `~']				
-	# 	]
 
 class BigDune(Dune):
 	def image(self):
 		return [							
-		['RRRRRR,.~"""""~. ,RRRR'],
-		['RRR/. . . . . . . .\\RR'],
-		['R/ . . . . . . . . . \\'],				
-		['~`. . . . . . . . . `~'],				
+		['RRRRRRR,.~"""""~. ,RRRRRR'],
+		['RRRR/, . . . . . . .\RRRR'],
+		['RR/,. . . . . . . . . \RR'],				
+		['~`, . . . . . . . . . .`~']				
 		]
-
-	# def image(self):
-	# 	return [							
-	# 	['      ,.~"""""~. ,    '],
-	# 	['   /. . . . . . . .\\  '],
-	# 	[' / . . . . . . . . . \\'],				
-	# 	['~`. . . . . . . . . `~'],				
-	# 	]
 
 class HugeDune(Dune):
 	def image(self):
 		return [							
-		['RRRRRR,.~"""""""~. ,RRRRR'],
-		['RRRR/. . . . . . . .\\RRRR'],
-		['RR/ . . . . . . . . . \\RR'],				
-		['R/ . . . . . . . . . . \\R'],				
-		['/ . . . . . . . . . . . \\'],				
-		['~` . . . . . . . . . . `~'],				
+		['RRRRRR,.~"""""""~. ,RRRRRR'],
+		['RRRR/, . . . . . . .\RRRRR'],
+		['RR/,. . . . . . . . . \RRR'],				
+		['R/,. . . . . . . . . . \RR'],				
+		['/,. . . . . . . . . . . \R'],				
+		['~` . . . . . . . . . . `~R']				
 		]
 
-	# def image(self):
-	# 	return [							
-	# 	['      ,.~"""""~. ,    '],
-	# 	['   /. . . . . . . .\\  '],
-	# 	[' / . . . . . . . . . \\'],				
-	# 	['~`. . . . . . . . . `~'],				
-	# 	]
+class SlopedDune(Dune):
+	def image(self):
+		return [							
+		['RRRRRRRR,.~"""""""~. ,RRRRRRRRRRRRRRRRRRRRRRRR'],
+		['RRRRRR/, . . . . . . .\RRRRRRRRRRRRRRRRRRRRRRR'],
+		['RRRR/,. . . . . . . . . \RRRRRRRRRRRRRRRRRRRRR'],				
+		['RRR/,. . . . . . . . . . . \RRRRRRRRRRRRRRRRRR'],				
+		['RR/,. . . . . . . . . . . . ,-----____RRRRRRRR'],				
+		['R/,. . . . . . . . . . . ,,/,. . . . . .\RRRRR'],				
+		['/,. . . . . . . . . . .,/,. . . . . . . . \RRR'],				
+		['~` . . . . . . . . . .,,,. . . . . . . . . .`~']				
+		]
+
+class SlantedDune(Dune):
+	def image(self):
+		return [							
+		['RRRRRRRRRRRRRR,.~"""""""~. ,RRRRRRRRRRRRRRRRR'],
+		['RRRRRRRRRRR/, . . . . . . .\RRRRRRRRRRRRRRRRR'],
+		['RRRRRRRR/,. . . . . . . . . \RRRRRRRRRRRRRRRR'],				
+		['RRRRRR/,. . . . . . . . . . . \RRRRRRRRRRRRRR'],				
+		['RRRR/,. . . . . . . . . . . ,-----.___RRRRRRR'],				
+		['RR/,. . . . . . . . . . .,,/, . . . . . \RRRR'],				
+		['/,. . . . . . . . . . .,/,. . . . . . . .\RRR'],				
+		['~` . . . . . . . . . .,. . . . . . . . . . `~']				
+		]
+
 
 # Corals
 class TreeCoral(NonMovingThing):
@@ -935,6 +967,32 @@ class LongKelp(NonMovingThing):
 		[' |/'],
 		['\|/'],
 		[' | '],					
+		[' | '],					
+		['\|/'],								
+		[' |/'],				
+		[' | '],				
+		['\| '],				
+		[' | '],				
+		[' | '],				
+		[' |/'],				
+		[' | '],				
+		['\|/'],
+		['\| '],
+		[' |/'],				
+		[' | '],				
+		['\| '],				
+		[' | '],				
+		[' |/'],				
+		[' | '],
+		['\| '],				
+		[' | '],				
+		[' |/'],				
+		[' | '],				
+		['\|/'],
+		[' | '],					
+		['\|/'],								
+		[' |/'],
+		['\|/'],
 		['\|/'],								
 		[' |/'],				
 		[' | '],				
@@ -1025,10 +1083,6 @@ class SeafloorGenerator(Generator):
 		self.coral_list = [TreeCoral, BrainCoral]
 		self.kelp_list = [Kelp, LongKelp]
 
-		self.dune_gen = []
-		self.coral_gen = []
-		self.kelp_gen = []
-
 # Good for generating fish and whales
 class EcosystemGenerator(Generator):
 	def __init__(self):
@@ -1040,9 +1094,7 @@ class EcosystemGenerator(Generator):
 
 		self.fish_list = [SeaMonkey, Minnow, AngelFish, Tuna, Baracuda]
 		self.whale_list = [Whale, BabyWhale]
-
-		self.fish_gen = []
-		self.whale_gen = []
+		self.snail_list = [Snail]
 
 
 ##### MAIN #####
@@ -1052,13 +1104,20 @@ class EcosystemGenerator(Generator):
 
 Aquarium = Window("blue")
 
+sand_color = choice(['yellow', 'white', 'yellow'])
+kelp_color = choice(['green', 'cyan', 'red', 'magenta', 'blue', 'green'])
+
 Water = Surface(HEIGHT*1/7, "cyan")
 Water.draw()
 Water.drawAbove()
-Sand = Surface(HEIGHT*5/6, "yellow")
+Sand = Surface(HEIGHT*5/6, sand_color)
 # Sand.draw()
 # Sand.drawUnder()
 
+# Hide the cursor
+os.system('echo -ne "\x1b[?25l"')
+# (Show the cursor again)
+#os.system('echo -ne "\x1b[?25h"')
 
 ############################################################################
 # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
@@ -1074,20 +1133,20 @@ if scale < 1:
 
 #.....BACKGROUND.....#
 SF_dunes = []
-SF.generate(	[SmallDune,BigDune,HugeDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,6*scale], ['yellow'], SF_dunes)
+SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
+				[2,4*scale], [sand_color], SF_dunes)
 
 SF_kelp = []
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], ['green'], SF_kelp)
+				[1,2*scale], [kelp_color], SF_kelp)
 
 
 #.....MIDGROUND.....#
 # Draw sand 
 Sand.drawUnder()
 
-SF.generate(	[SmallDune,BigDune,HugeDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,6*scale], ['yellow'], SF_dunes)
+SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
+				[2,4*scale], [sand_color], SF_dunes)
 
 SF_TreeCoral = []
 SF.generate(	[TreeCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
@@ -1098,7 +1157,7 @@ SF.generate(	[BrainCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
 				[1,2*scale], ['red','magenta','blue','cyan'], SF_BrainCoral)
 
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], ['green'], SF_kelp)
+				[1,2*scale], [kelp_color], SF_kelp)
 
 
 #.....ECOSYSTEM.....#
@@ -1132,17 +1191,24 @@ if WIDTH > 45:
 	# Add the rest of the baby whales to the Eco_Whales list
 	Eco_Whales += Eco_BabyWhales
 
+Eco_Snails = []
+Eco.generate(	[Snail], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
+				[1*scale,3*scale], SF.colors+['yellow'], Eco_Snails)
+for snail in Eco_Snails:
+	snail.speed = 1
+	snail.direction[0] = 0
+	snail.direction[1] = choice([-1,1])
+
 
 #.....FOREGROUND.....#
-#coral
 
 SF_kelp_front = []
 SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
-				[1*scale,2*scale], ['green'], SF_kelp_front)
+				[1*scale,2*scale], [kelp_color], SF_kelp_front)
 
 SF_dunes_front = []
-SF.generate(	[HugeDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-				[1*scale,2*scale], ['yellow'], SF_dunes_front)
+SF.generate(	[HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
+				[1*scale,2*scale], [sand_color], SF_dunes_front)
 
 
 #----------------------------------------------------------------------------------
@@ -1196,6 +1262,9 @@ cor = 0
 coral_list = SF_kelp + SF_kelp_front + SF_BrainCoral + SF_TreeCoral
 
 while True:
+	# Get times for waiting between frames
+	t_a = time()
+	t_b = time()
 
 	#randomly create bubbles
 	if bub % randint(1,15) == 5:
@@ -1211,6 +1280,13 @@ while True:
 
 
 	# Move all (independent) creatures
+	for snail in Eco_Snails:
+		if randint(1,50) == 1:
+			snail.direction[0] = 0
+			snail.move()
+		else:
+			snail.draw()
+
 	for fish in Eco_Fishies:
 		fish.randomMove()
 		for baracuda in Eco_Baracuda:
@@ -1232,7 +1308,6 @@ while True:
 	if len(Eco_BabyWhaleFollower) == 1:
 		Eco_BabyWhaleFollower[0].randomFollow(Eco_Whales[0], 7)
 
-
 	# Schools
 	smSchool.automate()
 	smSchool2.automate()
@@ -1242,27 +1317,36 @@ while True:
 	# Alternate between grouping around different corals
 
 	# Green SeaMonkeys
-	if cor % 1000 < search_time :
-		if cor % 1000 == 0:
+	if cor % 500 < search_time :
+		if cor % 500 == 0:
 			smSchool_desire = choice(coral_list)
 		for student in smSchool.students:
-			if randint(1,2) == 1:
+			if cor % 500 < 50:
+				if randint(1,2) == 1:
+					student.randomFollow(smSchool_desire, 4)
+			else:
 				student.randomFollow(smSchool_desire, 4)
 
 	# Red SeaMonkeys
-	if cor % 1200 < search_time:
-		if cor % 1200 == 0:
+	if cor % 600 < search_time:
+		if cor % 600 == 0:
 			smSchool2_desire = choice(coral_list)
 		for student in smSchool2.students:
-			if randint(1,2) == 1:
+			if cor % 600 < 50:
+				if randint(1,2) == 1:
+					student.follow(smSchool2_desire, 4)
+			else:
 				student.follow(smSchool2_desire, 4)
 
 	# Minnows
-	if cor % 2000 < search_time:
-		if cor % 2000 == 0:
+	if cor % 1000 < search_time:
+		if cor % 1000 == 0:
 			mSchool_desire = choice(coral_list)
 		for student in mSchool.students:
-			if randint(1,2) == 1:
+			if cor % 1000 < 50:
+				if randint(1,2) == 1:
+					student.follow(mSchool_desire, 4)
+			else:
 				student.follow(mSchool_desire, 4)
 
 	#------------------------------------------------------------
@@ -1308,10 +1392,8 @@ while True:
 	SF.DrawList(SF_dunes_front)
 	SF.DrawList(SF_kelp_front[:scale])
 
-	# Display Aquarium and wait
-	t_a = time()
-	Aquarium.display()
-	# sleep(DELAY)
-	t_b = time()
+
+	# Wait to display aquarium
 	while (t_b - t_a) < DELAY:
 		t_b = time()
+	Aquarium.display()
