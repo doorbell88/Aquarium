@@ -11,7 +11,7 @@ from copy import deepcopy
 import os
 import sys
 import signal
-from subprocess import Popen, PIPE
+import subprocess
 
 # since termcolor isn't a standard module, warn users who don't have it
 try:
@@ -25,12 +25,9 @@ except ImportError:
 DELAY = 0.07	# for screen refresh rate
 
 # get size of terminal
-#width
-stdout = Popen('tput cols', shell=True, stdout=PIPE).stdout
-WIDTH = int( stdout.read() )
-#height
-stdout = Popen('tput lines', shell=True, stdout=PIPE).stdout
-HEIGHT = int( stdout.read() ) - 1
+WIDTH = int( subprocess.check_output(['tput','cols']) )
+HEIGHT = int( subprocess.check_output(['tput','lines']) ) - 1
+
 # used for scaling time fish have to go towards a "desire" (coral)
 search_time = WIDTH + HEIGHT
 
