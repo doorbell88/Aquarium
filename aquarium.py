@@ -1423,6 +1423,18 @@ while True:
 		m_school.everyoneHunt(target_list, 2)
 
 
+	# ----------- RE-DRAW ALL SWIMMERS -----------#
+	# (some images may have been erased in "move()")
+	students = []						# get list of all fish in schools
+	for school in schools:
+		students += school.students
+	# draw every swimming creature
+	for creature in Eco_Fishies + Eco_Baracuda + \
+                    Eco_Whales + Eco_BabyWhales + Eco_BabyWhaleFollower + \
+                    students:
+		creature.draw()
+
+
 	#  ----- ACTIVE FOREGROUND ----- #
 
 	# randomly create bubbles to float up
