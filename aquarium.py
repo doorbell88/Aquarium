@@ -138,7 +138,6 @@ class Window(object):
 		for y in range(self.height):
 			self.aquarium_box.append([" "] * self.width)
 
-
 		#draw aquarium border
 		for y in range(0, self.height):
 			for x in range(0, self.width):
@@ -150,7 +149,6 @@ class Window(object):
 				self.aquarium_box[y][0] = colored( "|", self.border_color )
 				#right
 				self.aquarium_box[y][self.width - 1] = colored( "|", self.border_color )
-
 
 	def display(self):
 		# Clear screen and scrollback buffer
@@ -345,7 +343,6 @@ class MovingThing(Thing):
 		# variable for how much to accelerate when far from leader
 		self.accelerate = 1
 
-
 		get_distances = self.getDistance(leader)
 		# [dy, dx_tail, dx_front, distance_tail_sq, distance_front_sq]
 		dy = get_distances[0]
@@ -359,7 +356,6 @@ class MovingThing(Thing):
 				self.direction[0] = ( dy/abs(dy) )
 			if dx != 0:
 				self.direction[1] = ( dx/abs(dx) )
-
 
 			self.speed += self.accelerate		# Get back to leader
 			# self.move()						# Move straight to leader
@@ -375,7 +371,6 @@ class MovingThing(Thing):
 		dy = get_distances[0]
 		dx = get_distances[2]			# dx_front
 		dr_sq = get_distances[4]		# distance_front_sq
-
 
 		# if the radius is less than the flee distance (radius of safety)... Flee for your life!
 		if dr_sq <= (distance**2):
@@ -615,7 +610,6 @@ class Bubble(Debris):
 		self.color = color
 		self.direction = [-1,0]		# float up
 
-
 	def left(self):
 		return 	[			\
 		['o O'],
@@ -641,8 +635,6 @@ class NonMovingThing(Thing):
 		self.picture = [['']]
 
 		# self.draw()
-
-
 
 	# Get the picture of the object in question, and assign LEFT or RIGHT picture
 	def getPicture(self):
@@ -1205,8 +1197,10 @@ def remove_peripherals(*args):
 
 Aquarium = Window("blue")
 
-sand_color = choice(['yellow', 'white', 'yellow'])
-kelp_color = choice(['green', 'cyan', 'red', 'magenta', 'blue', 'green'])
+sand_color = choice(['yellow', 'white', 'red', 'yellow'])
+kelp_color = sand_color
+while kelp_color == sand_color:
+	kelp_color = choice(['green', 'cyan', 'red', 'magenta', 'blue', 'green'])
 
 Water = Surface(HEIGHT*1/7, "cyan")
 Water.draw()
