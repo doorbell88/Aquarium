@@ -43,6 +43,7 @@ FarawayObject.size = [0,0]
 def signal_handler(signum, frame):
 	# (Show the cursor again)
 	os.system('echo "\x1b[?25h"')
+	os.system('tput sgr0')
 	sys.exit()
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -597,6 +598,52 @@ class SeaUrchin(BottomFeeder):
 		['_\ | /_'],
 		['> ,*, <']		
 		]
+
+# Lobster
+class Lobster(BottomFeeder):
+	def __init___(self, position, color):
+		MovingThing.__init__(self, position, color)
+		self.maxspeed = 1
+
+	def left(self):
+		if randint(0,20) == 1:
+			return [							
+			['\./  '],
+			['>M=={'],
+			['     ']		
+			]
+		elif randint(0,20) == 2:
+			return [							
+			['_|.  '],
+			['>M=={'],
+			['     ']		
+			]
+		else:
+			return [							
+			['\|.  '],
+			['>M=={'],
+			['     ']		
+			]
+
+	def right(self):
+		if randint(0,20) == 1:
+			return [							
+			['  \./'],
+			['}==M<'],
+			['     ']		
+			]
+		elif randint(0,20) == 2:
+			return [							
+			['  .|_'],
+			['}==M<'],
+			['     ']		
+			]
+		else:
+			return [							
+			['  .|/'],
+			['}==M<'],
+			['     ']		
+			]
 
 # ------- DEBRIS ------- #
 
@@ -1282,10 +1329,14 @@ if WIDTH > 45:
 	# Add the rest of the baby whales to the Eco_Whales list
 	Eco_Whales += Eco_BabyWhales
 
-Eco_Snails = []
+Eco_BottomFeeders = []
 Eco.generate(	[Snail, SeaUrchin], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-				[1*scale,3*scale], SF.colors+['yellow'], Eco_Snails)
-for snail in Eco_Snails:
+				[1*scale,3*scale], SF.colors+['yellow'], Eco_BottomFeeders)
+
+Eco.generate(	[Lobster], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
+				[1*scale,3*scale], ['red','magenta'], Eco_BottomFeeders)
+
+for snail in Eco_BottomFeeders:
 	snail.speed = 1
 	snail.direction[0] = 0
 	snail.direction[1] = choice([-1,1])
@@ -1360,11 +1411,11 @@ while True:
 	t_b = time()
 
 	# Move all (independent) creatures
-	for snail in Eco_Snails:
+	for bottom_feeder in Eco_BottomFeeders:
 		if randint(1,50) == 1:
-			snail.randomMove()
+			bottom_feeder.randomMove()
 		else:
-			snail.draw()
+			bottom_feeder.draw()
 
 	for fish in Eco_Fishies:
 		fish.randomMove()
