@@ -1244,15 +1244,18 @@ def remove_peripherals(*args):
 
 Aquarium = Window("blue")
 
+Water = Surface(HEIGHT*1/7, "cyan")
+Water.draw()
+Water.drawAbove()
+
+sand_position = choice(range(HEIGHT*3/4, HEIGHT*6/7))
 sand_color = choice(['yellow', 'white', 'red', 'yellow'])
+Sand = Surface(sand_position, sand_color)
+
 kelp_color = sand_color
 while kelp_color == sand_color:
 	kelp_color = choice(['green', 'cyan', 'red', 'magenta', 'blue', 'green'])
 
-Water = Surface(HEIGHT*1/7, "cyan")
-Water.draw()
-Water.drawAbove()
-Sand = Surface(HEIGHT*5/6, sand_color)
 
 # Hide the cursor
 os.system('echo -ne "\x1b[?25l"')
@@ -1270,32 +1273,40 @@ if scale < 1:
 	scale = 1
 
 #.....BACKGROUND.....#
-SF_dunes = []
+BG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,4*scale], [sand_color], SF_dunes)
+				[2,4*scale], [sand_color], BG_Dunes)
 
-SF_kelp = []
+BG_Kelp = []
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], [kelp_color], SF_kelp)
+				[1,2*scale], [kelp_color], BG_Kelp)
+
+# creat a consolidated list of Background objects
+BG_List = BG_Dunes + BG_Kelp
 
 
 #.....MIDGROUND.....#
 # Draw sand 
 Sand.drawUnder()
 
+MG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,4*scale], [sand_color], SF_dunes)
+				[2,4*scale], [sand_color], MG_Dunes)
 
-SF_TreeCoral = []
+MG_TreeCoral = []
 SF.generate(	[TreeCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[3,8*scale], ['red','magenta','blue','cyan'], SF_TreeCoral)
+				[3,8*scale], ['red','magenta','blue','cyan'], MG_TreeCoral)
 
-SF_BrainCoral = []
+MG_BrainCoral = []
 SF.generate(	[BrainCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[1,2*scale], ['red','magenta','blue','cyan'], SF_BrainCoral)
+				[1,2*scale], ['red','magenta','blue','cyan'], MG_BrainCoral)
 
+MG_Kelp = []
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], [kelp_color], SF_kelp)
+				[1,2*scale], [kelp_color], MG_Kelp)
+
+# creat a consolidated list of Background objects
+MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
 
 
 #.....ECOSYSTEM.....#
@@ -1341,16 +1352,25 @@ for snail in Eco_BottomFeeders:
 	snail.direction[0] = 0
 	snail.direction[1] = choice([-1,1])
 
+# creat a consolidated list of Background objects
+Eco_List = Eco_Fishies + Eco_Baracuda + Eco_Whales + Eco_BabyWhales + \
+		   Eco_BabyWhaleFollower + Eco_BottomFeeders
+
+
 
 #.....FOREGROUND.....#
 
-SF_kelp_front = []
+FG_Kelp = []
 SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
-				[1*scale,2*scale], [kelp_color], SF_kelp_front)
+				[1*scale,2*scale], [kelp_color], FG_Kelp)
 
-SF_dunes_front = []
+FG_Dunes = []
 SF.generate(	[HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-				[1*scale,2*scale], [sand_color], SF_dunes_front)
+				[1*scale,2*scale], [sand_color], FG_Dunes)
+
+# creat a consolidated list of Background objects
+FG_List = FG_Kelp + FG_Dunes 
+
 
 
 #----------------------------------------------------------------------------------
@@ -1359,7 +1379,7 @@ Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
 #----------------------------------------------------------------------------------
 
 # Remove all coral that are off-screen (so fish don't try to follow an invisible coral)
-remove_peripherals(SF_kelp, SF_kelp_front, SF_TreeCoral, SF_BrainCoral)
+remove_peripherals(BG_Kelp, FG_Kelp, MG_TreeCoral, MG_BrainCoral)
 
 ###############################################################################################
 # SCHOOL FACTORY
@@ -1403,7 +1423,7 @@ bub_list = []
 #variable for changing which coral the school is going around
 cor = 0
 #list of corals to choose from (when following)
-coral_list = SF_kelp + SF_kelp_front + SF_BrainCoral + SF_TreeCoral
+coral_list = BG_Kelp + MG_Kelp + FG_Kelp + MG_BrainCoral + MG_TreeCoral
 
 while True:
 	# Get times for waiting between frames
@@ -1416,6 +1436,10 @@ while True:
 			bottom_feeder.randomMove()
 		else:
 			bottom_feeder.draw()
+
+	# Draw coral and kelp in midground (to cover up BottomFeeders)
+	SF.DrawList(MG_TreeCoral)
+	SF.DrawList(MG_Kelp)
 
 	for fish in Eco_Fishies:
 		fish.randomMove()
@@ -1495,9 +1519,9 @@ while True:
 		bubble.drift()
 
 	# Draw long kelp in the front
-	SF.DrawList(SF_kelp_front[scale:])
-	SF.DrawList(SF_dunes_front)
-	SF.DrawList(SF_kelp_front[:scale])
+	SF.DrawList(FG_Kelp[scale:])
+	SF.DrawList(FG_Dunes)
+	SF.DrawList(FG_Kelp[:scale])
 
 
 	# Wait to display aquarium
