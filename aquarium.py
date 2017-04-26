@@ -1272,6 +1272,9 @@ scale = WIDTH/55
 if scale < 1:
 	scale = 1
 
+volume = WIDTH * HEIGHT
+v_scale = volume / 100
+
 #.....BACKGROUND.....#
 BG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
@@ -1279,7 +1282,7 @@ SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3,
 
 BG_Kelp = []
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], [kelp_color], BG_Kelp)
+				[1,3*scale], [kelp_color], BG_Kelp)
 
 # creat a consolidated list of Background objects
 BG_List = BG_Dunes + BG_Kelp
@@ -1307,6 +1310,21 @@ SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
 
 # creat a consolidated list of Background objects
 MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
+
+
+#.....FOREGROUND.....#
+
+FG_Kelp = []
+SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
+				[1*scale,3*scale], [kelp_color], FG_Kelp)
+
+FG_Dunes = []
+SF.generate(	[HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
+				[1*scale,2*scale], [sand_color], FG_Dunes)
+
+# creat a consolidated list of Background objects
+FG_List = FG_Kelp + FG_Dunes 
+
 
 
 #.....ECOSYSTEM.....#
@@ -1358,21 +1376,6 @@ Eco_List = Eco_Fishies + Eco_Baracuda + Eco_Whales + Eco_BabyWhales + \
 
 
 
-#.....FOREGROUND.....#
-
-FG_Kelp = []
-SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
-				[1*scale,2*scale], [kelp_color], FG_Kelp)
-
-FG_Dunes = []
-SF.generate(	[HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-				[1*scale,2*scale], [sand_color], FG_Dunes)
-
-# creat a consolidated list of Background objects
-FG_List = FG_Kelp + FG_Dunes 
-
-
-
 #----------------------------------------------------------------------------------
 #set eveything so far as the background environment
 Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
@@ -1387,6 +1390,8 @@ remove_peripherals(BG_Kelp, FG_Kelp, MG_TreeCoral, MG_BrainCoral)
 # 								SchoolType, SchoolSize, SchoolCenter, AnimalType, \
 # 								FollowType, FollowDistance, LeadType, Color
 
+max_fish = v_scale
+
 School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
 School_Colors = ['blue','cyan','green','red','magenta','white']
 Follow_Types = ['calmRandomFollow', 'randomFollow']
@@ -1399,17 +1404,27 @@ School_Centers = [	[HEIGHT*1/3,WIDTH*1/7],
 					[HEIGHT*2/3,WIDTH*5/7]]
 
 # --- SEA MONKEYS! ---#
-number_of_sea_monkey_schools = 3
+#number_of_sea_monkey_schools = 3
+number_of_sea_monkey_schools = randint(2,8)
+fps_avg = ( max_fish / number_of_sea_monkey_schools )
+fps_min = int(fps_avg / 2)       # 20
+fps_max = int(fps_avg * 1.5)     # 60
+
 sea_monkey_schools = []
 SeaMonkeyFactory = SchoolFactory(AnimalType=SeaMonkey)
-generate_schools(number_of_sea_monkey_schools, SeaMonkeyFactory, sea_monkey_schools, 20,60 )
+generate_schools(number_of_sea_monkey_schools, SeaMonkeyFactory, sea_monkey_schools, fps_min,fps_max )
 
 
 # --- MINNOWS! --- #
-number_of_minnow_schools = 1
+#number_of_minnow_schools = 1
+number_of_minnow_schools = randint(1,number_of_sea_monkey_schools/2)
+fps_avg = ( max_fish / 20 )
+fps_min = int(fps_avg / 2)       # 10
+fps_max = int(fps_avg * 1.5)     # 20
+
 minnow_schools = []
 MinnowFactory = SchoolFactory(AnimalType=Minnow, LeadType='calmRandomMove')
-generate_schools(number_of_minnow_schools, MinnowFactory, minnow_schools, 10,20 )
+generate_schools(number_of_minnow_schools, MinnowFactory, minnow_schools, fps_min,fps_max )
 
 schools = sea_monkey_schools + minnow_schools
 ###############################################################################################
