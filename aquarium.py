@@ -438,12 +438,11 @@ class SeaMonkey(Fish):
 		self.maxspeed = 2
 	
 	def left(self):
-		# if randint(1,2) == 1:
 		if self.direction[0] < 0:
 			return 	[			\
 			['`']
 			]
-		if self.direction[0] > 0:
+		elif self.direction[0] > 0:
 			return 	[			\
 			[',']
 			]
@@ -452,19 +451,28 @@ class SeaMonkey(Fish):
 			['-']
 			]
 	def right(self):
-		# if randint(1,2) == 1:
-		if self.direction[0] < 0:
-			return 	[			\
-			[',']
-			]
-		elif self.direction[0] < 0:
-			return 	[			\
-			['`']
-			]
+		if self.direction[1] == 0:
+			if self.direction[0] == 0:
+				return 	[			\
+				['-']
+				]
+			else:
+				return 	[			\
+				['\'']
+				]
 		else:
-			return 	[			\
-			['-']
-			]
+			if self.direction[0] < 0:
+				return 	[			\
+				[',']
+				]
+			elif self.direction[0] > 0:
+				return 	[			\
+				['`']
+				]
+			else:
+				return 	[			\
+				['-']
+				]
 
 # Fish (small)
 class Minnow(Fish):
@@ -1121,7 +1129,7 @@ class SchoolFactory(object):
 class Generator(object):
 	def __init__(self):
 
-		self.colors = ['red','green','blue','cyan','magenta','white']
+		self.colors = ['red','green','blue','cyan','magenta','yellow','white']
 
 		# Bounds 
 		self.left = 1
@@ -1331,12 +1339,12 @@ FG_List = FG_Kelp + FG_Dunes
 
 Eco_Fishies = []
 Eco.generate(	[Minnow, AngelFish, Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[1,3], SF.colors, Eco_Fishies)
+				[1,3], Eco.colors, Eco_Fishies)
 
 Eco_Baracuda = []
 if WIDTH > 30:
 	Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-					[0,1], SF.colors, Eco_Baracuda)
+					[0,1], Eco.colors, Eco_Baracuda)
 
 Eco_Whales = []
 Eco_BabyWhales = []
@@ -1360,7 +1368,7 @@ if WIDTH > 45:
 
 Eco_BottomFeeders = []
 Eco.generate(	[Snail, SeaUrchin], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-				[1*scale,3*scale], SF.colors+['yellow'], Eco_BottomFeeders)
+				[1*scale,3*scale], Eco.colors, Eco_BottomFeeders)
 
 Eco.generate(	[Lobster], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
 				[1*scale,3*scale], ['red','magenta'], Eco_BottomFeeders)
@@ -1393,7 +1401,7 @@ remove_peripherals(BG_Kelp, FG_Kelp, MG_TreeCoral, MG_BrainCoral)
 max_fish = v_scale
 
 School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
-School_Colors = ['blue','cyan','green','red','magenta','white']
+School_Colors = ['blue','cyan','green','red','magenta','yellow','white']
 Follow_Types = ['calmRandomFollow', 'randomFollow']
 Lead_Types = ['calmRandomMove', 'randomMove']
 School_Centers = [	[HEIGHT*1/3,WIDTH*1/7],
@@ -1407,8 +1415,8 @@ School_Centers = [	[HEIGHT*1/3,WIDTH*1/7],
 #number_of_sea_monkey_schools = 3
 number_of_sea_monkey_schools = randint(2,8)
 fps_avg = ( max_fish / number_of_sea_monkey_schools )
-fps_min = int(fps_avg / 2)       # 20
-fps_max = int(fps_avg * 1.5)     # 60
+fps_min = int(fps_avg / 4)       # 20
+fps_max = int(fps_avg * 2)       # 60
 
 sea_monkey_schools = []
 SeaMonkeyFactory = SchoolFactory(AnimalType=SeaMonkey)
