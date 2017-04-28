@@ -520,7 +520,7 @@ class Tuna(Fish):
 		]
 
 # Fish (long)
-class Baracuda(Fish):
+class Barracuda(Fish):
 	def __init___(self, position, color):
 		MovingThing.__init__(self, position, color)
 		self.maxspeed = 2
@@ -720,9 +720,9 @@ class Surface(object):
 		while y < (HEIGHT - 1):
 			while x < (WIDTH - 2):
 				Aquarium.aquarium_box[y][x] = colored( ',', self.color)
-				x += 1
-				Aquarium.aquarium_box[y][x] = ' '
-				x +=1
+				x += (HEIGHT - self.position) / (y - self.position)  #1
+				#Aquarium.aquarium_box[y][x] = ' '
+				x += 1   #1
 			x = (y % 2) + 1
 			y += 1
 
@@ -1176,7 +1176,7 @@ class SeafloorGenerator(Generator):
 		self.bottom = HEIGHT + 1
 		self.top = Sand.position + 1
 
-		self.dune_list = [SmallDune, BigDune]
+		self.dune_list = [SmallDune, BigDune, HugeDune, SlopedDune, SlantedDune]
 		self.coral_list = [TreeCoral, BrainCoral]
 		self.kelp_list = [Kelp, LongKelp]
 
@@ -1189,7 +1189,7 @@ class EcosystemGenerator(Generator):
 		self.bottom = HEIGHT - 1
 		self.top = Water.position + 1
 
-		self.fish_list = [SeaMonkey, Minnow, AngelFish, Tuna, Baracuda]
+		self.fish_list = [SeaMonkey, Minnow, AngelFish, Tuna, Barracuda]
 		self.whale_list = [Whale, BabyWhale]
 		self.bottom_list = [Snail, SeaUrchin]
 
@@ -1256,9 +1256,12 @@ Water = Surface(HEIGHT*1/7, "cyan")
 Water.draw()
 Water.drawAbove()
 
-sand_position = choice(range(HEIGHT*3/4, HEIGHT*6/7))
+sand_position = choice(range(HEIGHT*2/3, HEIGHT*6/7))
 sand_color = choice(['yellow', 'white', 'red', 'yellow'])
 Sand = Surface(sand_position, sand_color)
+Sand.drawUnder()
+#Aquarium.display()
+#sleep(2)
 
 kelp_color = sand_color
 while kelp_color == sand_color:
@@ -1284,11 +1287,32 @@ volume = WIDTH * HEIGHT
 v_scale = volume / 100
 
 #.....BACKGROUND.....#
+
+# Create an underwater hill
+hill_position = randint(SF.left, SF.right)
+hill_spread = randint(WIDTH*1/4, WIDTH*1/2)
+hill_left = hill_position - hill_spread
+hill_right = hill_position + hill_spread
+hill_y_bounds = [randint(HEIGHT*1/3,HEIGHT*2/3), HEIGHT*2/3]
+hill_x_bounds = [hill_left, hill_right]
+
 BG_Dunes = []
+SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], \
+                [ hill_y_bounds , hill_x_bounds ], \
+				[1*scale,3*scale], [sand_color], BG_Dunes)
+
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
 				[2,4*scale], [sand_color], BG_Dunes)
 
+
 BG_Kelp = []
+SF.generate(	[Kelp], \
+                [ hill_y_bounds , hill_x_bounds ], \
+				[1*scale,3*scale], [kelp_color], BG_Kelp)
+SF.generate(	[TreeCoral], \
+                [ hill_y_bounds , hill_x_bounds ], \
+				[1*scale,3*scale], SF.colors, BG_Kelp)
+
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
 				[1,3*scale], [kelp_color], BG_Kelp)
 
@@ -1298,7 +1322,7 @@ BG_List = BG_Dunes + BG_Kelp
 
 #.....MIDGROUND.....#
 # Draw sand 
-Sand.drawUnder()
+#Sand.drawUnder()
 
 MG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
@@ -1341,10 +1365,10 @@ Eco_Fishies = []
 Eco.generate(	[Minnow, AngelFish, Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
 				[1,3], Eco.colors, Eco_Fishies)
 
-Eco_Baracuda = []
+Eco_Barracuda = []
 if WIDTH > 30:
-	Eco.generate(	[Baracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-					[0,1], Eco.colors, Eco_Baracuda)
+	Eco.generate(	[Barracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
+					[0,1], Eco.colors, Eco_Barracuda)
 
 Eco_Whales = []
 Eco_BabyWhales = []
@@ -1379,7 +1403,7 @@ for snail in Eco_BottomFeeders:
 	snail.direction[1] = choice([-1,1])
 
 # creat a consolidated list of Background objects
-Eco_List = Eco_Fishies + Eco_Baracuda + Eco_Whales + Eco_BabyWhales + \
+Eco_List = Eco_Fishies + Eco_Barracuda + Eco_Whales + Eco_BabyWhales + \
 		   Eco_BabyWhaleFollower + Eco_BottomFeeders
 
 
@@ -1466,15 +1490,14 @@ while True:
 
 	for fish in Eco_Fishies:
 		fish.randomMove()
-		for baracuda in Eco_Baracuda:
-			fish.flee(baracuda, 3)
+		for barracuda in Eco_Barracuda:
+			fish.flee(barracuda, 3)
 		for whale in Eco_Whales:
 			fish.flee(whale, 6)
 
-	for baracuda in Eco_Baracuda:
-		baracuda.calmRandomMove()
-		baracuda.follow(baracuda.findNearest(Eco_Fishies), 2)
-		baracuda.flee(baracuda.findNearest(Eco_Whales), 4)
+	for barracuda in Eco_Barracuda:
+		barracuda.calmRandomMove()
+		barracuda.flee(barracuda.findNearest(Eco_Whales), 4)
 
 	for whale in Eco_Whales:
 		whale.calmRandomMove()		# This includes the baby whale follower (adds spunk)
@@ -1493,6 +1516,13 @@ while True:
 		period = schools.index(school) * 100 + 500
 		stay = schools.index(school) * 10 + 50
 		group_around_coral(school, period, stay)
+
+	# Sometimes the Barracuda hunts nearest fish
+	for barracuda in Eco_Barracuda:
+		period = Eco_Barracuda.index(barracuda) * 200 + 500
+		stay = Eco_Barracuda.index(barracuda) * 20 + 50
+		if cor % period < stay:
+			barracuda.follow(barracuda.findNearest(Eco_Fishies), 2)
 	
 	if cor >= 10000:
 		cor = 0		#reset count
@@ -1504,7 +1534,7 @@ while True:
 
 	# All fish flee from whales
 	for school in schools:
-		enemy_list = Eco_Whales + Eco_Baracuda
+		enemy_list = Eco_Whales + Eco_Barracuda
 		school.everyoneFlee(enemy_list, 4)
 
 	# All Sea Monkies flee from Minnows
@@ -1527,7 +1557,7 @@ while True:
 	for school in schools:
 		students += school.students
 	# draw every swimming creature
-	for creature in Eco_Fishies + Eco_Baracuda + \
+	for creature in Eco_Fishies + Eco_Barracuda + \
                     Eco_Whales + Eco_BabyWhales + Eco_BabyWhaleFollower + \
                     students:
 		creature.draw()
