@@ -665,16 +665,36 @@ class Bubble(Debris):
 		self.color = color
 		self.direction = [-1,0]		# float up
 
-	def left(self):
+		# choose between possible bubble images
+		self.left, self.right = choice([[self._left1, self._right1],
+										[self._left2, self._right2]])
+
+	# First set of bubble images
+	def _left1(self):
 		return 	[			\
 		['o O'],
-		[' : ']
+		[' : '],
 		]
-	def right(self):
+	def _right1(self):
 		return 	[		\
 		['o .'],
-		['.%s ' %(degree_symbol)]
+		['.%s ' %(degree_symbol)],
 		] 
+
+	# Second set of bubble images
+	def _left2(self):
+		return 	[			\
+		['o. '],
+		['   '],
+		[' .%s' %(degree_symbol)],
+		]
+	def _right2(self):
+		return 	[		\
+		[' o.'],
+		['.  '],
+		['  .'],
+		] 
+
 
 # ------- NONMOVING THINGS ------- #
 
@@ -723,7 +743,8 @@ class Surface(object):
 				x += (HEIGHT - self.position) / (y - self.position)  #1
 				#Aquarium.aquarium_box[y][x] = ' '
 				x += 1   #1
-			x = (y % 2) + 1
+			#x = (y % 2) + 1
+			x = randint(1, 3)
 			y += 1
 
 	#draw fill above line
@@ -760,8 +781,8 @@ class SmallDune(Dune):
 	def image(self):
 		return [							
 		['RRR.~""~.RRR'],
-		['RR/, . . \RR'],
-		['~`, . . . `~']				
+		['RR/; . . \RR'],
+		['~`; . . . `~']				
 		]
 
 class BigDune(Dune):
@@ -1010,6 +1031,15 @@ class School(object):
 
 # Everyone follows a single Monarch
 class Monarch(School):
+	"""Everyone follows a single "monarch"
+
+             o  oo 
+          o o  o o o 
+	       o o o  o   --> o   
+           o oo o o
+             o  o  
+
+	"""
 	def createFollowingOrder(self):
 		# Start with blank list
 		self.following_order = []
@@ -1021,6 +1051,17 @@ class Monarch(School):
 		return self.following_order
 # each leader is followed by 2 fish, in a tree branching structure
 class Tree(School):
+	"""Each fish is followed by 2 fish, in a tree branching structure
+
+	              o 
+	             / \ 
+	            o   o
+	           /|   |\ 
+              o o   o o
+	         /| |\  |\ \ 
+            o o o o o o o
+
+	"""
 	def createFollowingOrder(self):
 		self.following_order = []
 		self.branches = []
@@ -1036,6 +1077,13 @@ class Tree(School):
 		return self.following_order
 # Everyone follows the previous fish in line
 class Line(School):
+	"""Everyone follows the fish in front of them
+
+	            ,o--o,              
+	         ,o        o--o--o  --> 
+	       o                        
+
+	"""
 	def createFollowingOrder(self):
 		# Start with blank list
 		self.following_order = []
@@ -1048,6 +1096,13 @@ class Line(School):
 		return self.following_order
 # Same as line, but first fish follows last fish (creating a circle)
 class Circle(School):
+	"""Same as line, but first fish follows last fish (creating a circle)
+
+	        ,o--o--o--o--o--o,     
+	       o                  o    
+	        'o--o--o--o--o--o'     
+
+	"""
 	def createFollowingOrder(self):
 		# Start with blank list
 		self.following_order = []
@@ -1059,6 +1114,14 @@ class Circle(School):
 		return self.following_order
 # Follow closest fish
 class Neighbor(School):
+	"""Everyone follows the closest fish to them in the school
+
+	       o  ooo    oo      o
+	        oo     oo    oo o
+	    oo     oo  oo    o o 
+	       oo       oo       
+
+	"""
 	def createFollowingOrder(self):
 		self.following_order = []
 	def automate(self):
@@ -1067,6 +1130,15 @@ class Neighbor(School):
 			self.Follow( student, student.findNearest(self.students), self.FollowDistance )
 # Same as Neighbor, but keep personal space
 class ShyNeighbor(Neighbor):
+	"""Everyone follows the closest fish to them in the school,
+	unless they're too close and then the flee
+
+	       o  o o    o       o
+	        o      o      o  
+	    o      o           o 
+	        o      o o       
+
+	"""
 	def automate(self):
 		Neighbor.automate(self)
 		for student in self.students:
@@ -1256,7 +1328,7 @@ Water = Surface(HEIGHT*1/7, "cyan")
 Water.draw()
 Water.drawAbove()
 
-sand_position = choice(range(HEIGHT*2/3, HEIGHT*6/7))
+sand_position = choice(range(HEIGHT*1/2, HEIGHT*6/7))
 sand_color = choice(['yellow', 'white', 'red', 'yellow'])
 Sand = Surface(sand_position, sand_color)
 Sand.drawUnder()
@@ -1290,31 +1362,32 @@ v_scale = volume / 100
 
 # Create an underwater hill
 hill_position = randint(SF.left, SF.right)
-hill_spread = randint(WIDTH*1/4, WIDTH*1/2)
-hill_left = hill_position - hill_spread
-hill_right = hill_position + hill_spread
-hill_y_bounds = [randint(HEIGHT*1/3,HEIGHT*2/3), HEIGHT*2/3]
+hill_spread   = randint(WIDTH*1/4, WIDTH*1/3)
+hill_left     = hill_position - hill_spread
+hill_right    = hill_position + hill_spread
+hill_y_bounds = [randint(HEIGHT*1/3,Sand.position), Sand.position]
 hill_x_bounds = [hill_left, hill_right]
+hill_number   = ( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) / 500
 
 BG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], \
                 [ hill_y_bounds , hill_x_bounds ], \
-				[1*scale,3*scale], [sand_color], BG_Dunes)
-
-SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,4*scale], [sand_color], BG_Dunes)
-
+				[0*hill_number,3*hill_number], [sand_color], BG_Dunes)
 
 BG_Kelp = []
 SF.generate(	[Kelp], \
-                [ hill_y_bounds , hill_x_bounds ], \
-				[1*scale,3*scale], [kelp_color], BG_Kelp)
+                [ [hill_y_bounds[0]-12, hill_y_bounds[1]-12] , hill_x_bounds ], \
+				[0*scale,3*scale], [kelp_color], BG_Kelp)
 SF.generate(	[TreeCoral], \
                 [ hill_y_bounds , hill_x_bounds ], \
-				[1*scale,3*scale], SF.colors, BG_Kelp)
+				[0*scale,3*scale], SF.colors, BG_Kelp)
+
+
+SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
+				[0,4*scale], [sand_color], BG_Dunes)
 
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,3*scale], [kelp_color], BG_Kelp)
+				[0,3*scale], [kelp_color], BG_Kelp)
 
 # creat a consolidated list of Background objects
 BG_List = BG_Dunes + BG_Kelp
@@ -1326,19 +1399,19 @@ BG_List = BG_Dunes + BG_Kelp
 
 MG_Dunes = []
 SF.generate(	[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
-				[2,4*scale], [sand_color], MG_Dunes)
+				[0,4*scale], [sand_color], MG_Dunes)
 
 MG_TreeCoral = []
 SF.generate(	[TreeCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[3,8*scale], ['red','magenta','blue','cyan'], MG_TreeCoral)
+				[0,8*scale], ['red','magenta','blue','cyan'], MG_TreeCoral)
 
 MG_BrainCoral = []
 SF.generate(	[BrainCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-				[1,2*scale], ['red','magenta','blue','cyan'], MG_BrainCoral)
+				[0,2*scale], ['red','magenta','blue','cyan'], MG_BrainCoral)
 
 MG_Kelp = []
 SF.generate(	[Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-				[1,2*scale], [kelp_color], MG_Kelp)
+				[0,2*scale], [kelp_color], MG_Kelp)
 
 # creat a consolidated list of Background objects
 MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
@@ -1348,11 +1421,11 @@ MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
 
 FG_Kelp = []
 SF.generate(	[LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
-				[1*scale,3*scale], [kelp_color], FG_Kelp)
+				[0*scale,3*scale], [kelp_color], FG_Kelp)
 
 FG_Dunes = []
 SF.generate(	[HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-				[1*scale,2*scale], [sand_color], FG_Dunes)
+				[0*scale,2*scale], [sand_color], FG_Dunes)
 
 # creat a consolidated list of Background objects
 FG_List = FG_Kelp + FG_Dunes 
@@ -1362,8 +1435,8 @@ FG_List = FG_Kelp + FG_Dunes
 #.....ECOSYSTEM.....#
 
 Eco_Fishies = []
-Eco.generate(	[Minnow, AngelFish, Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-				[1,3], Eco.colors, Eco_Fishies)
+Eco.generate(	[Minnow, AngelFish, Tuna, SeaMonkey], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
+				[1,5], Eco.colors, Eco_Fishies)
 
 Eco_Barracuda = []
 if WIDTH > 30:
@@ -1414,7 +1487,8 @@ Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
 #----------------------------------------------------------------------------------
 
 # Remove all coral that are off-screen (so fish don't try to follow an invisible coral)
-remove_peripherals(BG_Kelp, FG_Kelp, MG_TreeCoral, MG_BrainCoral)
+#remove_peripherals(BG_Kelp, FG_Kelp, MG_TreeCoral, MG_BrainCoral)
+remove_peripherals(BG_List, MG_List, FG_List)
 
 ###############################################################################################
 # SCHOOL FACTORY
@@ -1476,6 +1550,8 @@ while True:
 	# Get times for waiting between frames
 	t_a = time()
 	t_b = time()
+
+	SF.DrawList(MG_List)
 
 	# Move all (independent) creatures
 	for bottom_feeder in Eco_BottomFeeders:
