@@ -43,6 +43,7 @@ scale = 1 if scale == 0 else scale
 draw_sand                       = True
 draw_water_surface              = True
 draw_air                        = True
+bubbles                         = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
 clock_fish                      = True
@@ -75,7 +76,7 @@ clock_fish_colors   = all_possible_colors
 # ... background
 background_dunes        = randint( 0 , 4*scale )
 background_kelp         = randint( 0 , 3*scale )
-hill_kelp               = randint( 0 , 3*scale )
+hill_kelp               = randint( 0 , 2*scale )
 hill_coral              = randint( 0 , 3*scale )
 # ... midground
 midground_dunes         = randint( 0 , 4*scale )
@@ -86,7 +87,7 @@ midground_kelp          = randint( 0 , 2*scale )
 foreground_dunes        = randint( 0 , 3*scale )
 foreground_kelp         = randint( 0 , 2*scale )
 # ... bubbles
-bubble_frequency        = 15
+bubble_frequency        = 15        # (higher number means less frequent)
 
 
 #------------------------------------ life -------------------------------------
@@ -124,6 +125,24 @@ def signal_handler(signum, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+def debug_printout():
+    subprocess.call(['tput', 'cup', '0', '0'])
+    print "reduce_clock:  {}".format(reduce_clock)
+    print "frame time:    {}".format((t_b - t_a))
+    print 
+    print "{:12}  {:4}  {}".format("SCHOOL TYPE", "SIZE", "COLOR")
+    print "{}".format(28*"-")
+    for school in schools:
+        try:
+            color = school.students[0].color
+        except:
+            color = ''
+
+        print "{:12}  {:4}  {}".format( school.__class__.__name__, 
+                                        len(school.students),
+                                        color,
+                                        school.following_order,
+                                      )
 
 #---------------------------- FUNCTION DECORATORS ------------------------------
 
@@ -1906,11 +1925,12 @@ def school_special_behaviors():
 
 # create bubbles and drift them up
 def automate_bubbles():
-    # randomly create bubbles to float up
-    create_bubbles()
-    # Drift all bubbles (in foreground)
-    for bubble in bub_list:
-        bubble.drift()
+    if bubbles == True:
+        # randomly create bubbles to float up
+        create_bubbles()
+        # Drift all bubbles (in foreground)
+        for bubble in bub_list:
+            bubble.drift()
 
 # remove creatures if there are too many and program is too slow
 def reduce_ecosystem(count):
@@ -2124,6 +2144,11 @@ while True:
     Aquarium.display()
 
 
+    #---------------------- debug printout -------------------------
+    if len(sys.argv) > 1 and  sys.argv[1] in ['-v', '--verbose']:
+        debug_printout()
+
+
     #-------------------------- REDUCE ECOSYSTEM -------------------------------
     if reduce_clock < 20:
         #-----------------------------------------------------------------------
@@ -2144,21 +2169,3 @@ while True:
     #---------------------------------------------------------------------------
     if (t_b - t_a) > DELAY*1.4:
         reduce_clock = 0
-
-
-    ##---------------------- debug printout -------------------------
-    #subprocess.call(['tput', 'cup', '0', '0'])
-    #print reduce_clock
-    #print (t_b - t_a)
-    #for school in schools:
-    #    try:
-    #        color = school.students[0].color
-    #    except:
-    #        color = ''
-
-    #    print "{:12}   {:3}   {}".format( school.__class__.__name__, 
-    #                                    len(school.students),
-    #                                    color,
-    #                                    school.following_order,
-    #                                  )
-    ##---------------------------------------------------------------
