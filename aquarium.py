@@ -30,11 +30,11 @@ volume  = WIDTH * HEIGHT
 
 #------------------------------- time and space --------------------------------
 # for screen refresh rate
-DELAY                           = 0.08
+DELAY              =    0.08
 # used for scaling time fish periodically take to swim towards a coral/kelp
-search_time                     = WIDTH + HEIGHT
+coral_search_time  =    (WIDTH + HEIGHT) / 2
 # scale (for how much stuff (eg. kelp) can fit in the terminal width)
-scale                           = WIDTH / 40
+scale              =    WIDTH / 40
 # avoid divide-by-zero errors
 scale = 1 if scale == 0 else scale
 
@@ -45,47 +45,60 @@ draw_water_surface              = True
 draw_air                        = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
-clock_fish                      = False
+clock_fish                      = True
 explorer_school                 = False
 
 # Generate random word bubbles
 word_bubbles                    = False
 word_file                       = "/usr/share/dict/words"
-word_list                       = open(word_file).read().splitlines()
+
+
+#----------------------------------- colors ------------------------------------
+# AVAILABLE COLORS  = ['red','green','blue','cyan','magenta','yellow','white']
+all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
+#-------------------------------------------------------------------------------
+water_colors        = ['cyan']
+bubble_colors       = ['cyan']
+sand_colors         = ['yellow','white','red','magenta','yellow']
+kelp_colors         = all_possible_colors
+coral_colors        = all_possible_colors
+creature_colors     = all_possible_colors
+lobster_colors      = ['red','magenta']
+snail_colors        = all_possible_colors
+sea_urchin_colors   = all_possible_colors
+fish_school_colors  = all_possible_colors
+whale_colors        = ['blue','white','cyan']
+clock_fish_colors   = all_possible_colors
 
 
 #---------------------------------- scenery ------------------------------------
-# colors
-water_colors                    = ['cyan']
-sand_colors                     = ['yellow', 'white', 'red', 'magenta', 'yellow']
-kelp_colors                     = ['red','green','blue','cyan','magenta']
-creature_colors                 = ['red','green','blue','cyan','magenta','yellow','white']
-coral_colors                    = ['red','green','blue','cyan','magenta','yellow','white']
-school_colors                   = ['red','green','blue','cyan','magenta','yellow','white']
 # ... background
-background_dunes                = randint( 0 , 4*scale )
-background_kelp                 = randint( 0 , 3*scale )
-hill_kelp                       = randint( 0 , 3*scale )
-hill_coral                      = randint( 0 , 3*scale )
+background_dunes        = randint( 0 , 4*scale )
+background_kelp         = randint( 0 , 3*scale )
+hill_kelp               = randint( 0 , 3*scale )
+hill_coral              = randint( 0 , 3*scale )
 # ... midground
-midground_dunes                 = randint( 0 , 4*scale )
-midground_tree_coral            = randint( 0 , 8*scale )
-midground_brain_coral           = randint( 0 , 2*scale )
-midground_kelp                  = randint( 0 , 2*scale )
+midground_dunes         = randint( 0 , 4*scale )
+midground_tree_coral    = randint( 0 , 8*scale )
+midground_brain_coral   = randint( 0 , 2*scale )
+midground_kelp          = randint( 0 , 2*scale )
 # ... foreground
-foreground_dunes                = randint( 0 , 3*scale )
-foreground_kelp                 = randint( 0 , 2*scale )
+foreground_dunes        = randint( 0 , 3*scale )
+foreground_kelp         = randint( 0 , 2*scale )
+# ... bubbles
+bubble_frequency        = 15
 
 
 #------------------------------------ life -------------------------------------
 # ... fish schools
 max_fish                        = volume / 100
+min_fish_per_school             = 5
 number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
-number_of_whales                = randint( 0 , 1 )
-number_of_baby_whales           = randint( 0 , 1 )
-number_of_barracudas            = randint( 0 , 1 )
+number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
+number_of_baby_whales           = randint( 0 , 1 ) if volume > 1000 else 0
+number_of_barracudas            = randint( 0 , 1 ) if volume > 800  else 0
 number_of_tuna                  = randint( 0 , 4 )
 number_of_angelfish             = randint( 0 , 4 )
 number_of_minnows               = randint( 0 , 4 )
@@ -1151,7 +1164,7 @@ class School(object):
         self.FollowType = FollowType
         self.FollowDistance = FollowDistance
 
-        self.following_order = self.createFollowingOrder()
+        self.createFollowingOrder()
 
     # Direct which kind of LeadType
     def Lead(self, current_student):
@@ -1172,8 +1185,8 @@ class School(object):
         for student in range( len(self.students) ):
 
             current_student = self.students[student]
-            current_leader = self.following_order[student]
-            distance = self.FollowDistance
+            current_leader  = self.following_order[student]
+            distance        = self.FollowDistance
 
             if current_leader == '0':
                 self.Lead(current_student)
@@ -1217,8 +1230,10 @@ class Monarch(School):
         for x in self.students:
             self.following_order.append(self.students[0])
         #add student1 to the beginning of the list, as "0"
-        self.following_order[0] = "0"
-        return self.following_order
+        try:
+            self.following_order[0] = "0"
+        except:
+            pass
 
 # each leader is followed by 2 fish, in a tree branching structure
 class Tree(School):
@@ -1245,7 +1260,6 @@ class Tree(School):
             # Add latest branch leader (twice)
             self.following_order.append(self.branches[-1])
             self.following_order.append(self.branches[-1])
-        return self.following_order
 
 # Everyone follows the previous fish in line
 class Line(School):
@@ -1263,9 +1277,11 @@ class Line(School):
         for x in self.students:
             self.following_order.append(x)
         #add student1 to the beginning of the list, as "0"
-        self.following_order.insert(0,"0")
-        self.following_order.pop()              #remove last student (has no followers)
-        return self.following_order
+        try:
+            self.following_order.insert(0,"0")
+            self.following_order.pop()              #remove last student (has no followers)
+        except:
+            pass
 
 # Same as line, but first fish follows last fish (creating a circle)
 class Circle(School):
@@ -1283,8 +1299,10 @@ class Circle(School):
         for x in self.students:
             self.following_order.append(x)
         # make first in list follow last in list
-        self.following_order.insert(0, self.following_order.pop())
-        return self.following_order
+        try:
+            self.following_order.insert(0, self.following_order.pop())
+        except:
+            pass
 
 # Follow closest fish
 class Neighbor(School):
@@ -1314,6 +1332,8 @@ class ShyNeighbor(Neighbor):
             o      o o       
 
     """
+    def createFollowingOrder(self):
+        self.following_order = []
     def automate(self):
         Neighbor.automate(self)
         for student in self.students:
@@ -1328,9 +1348,10 @@ class ShyNeighbor(Neighbor):
 def create_bubbles():
     global bub
     #randomly create bubbles
-    if bub % randint(1,15) == 5:
-        bub_pos = [HEIGHT-5, randint(1, WIDTH -3)]
-        bub_list.append(Bubble(bub_pos, 'cyan'))
+    if bub % randint(1,bubble_frequency) == 1:
+        bub_position = [HEIGHT-5, randint(1, WIDTH -3)]
+        bub_color    = choice(bubble_colors)
+        bub_list.append(Bubble(bub_position, bub_color))
     bub += 1
     #recycle list
     if len(bub_list) >= 30:
@@ -1342,7 +1363,7 @@ def group_around_coral(school, period, stay):
     global cor, coral_list
     if cor % period == 0:
         school.desire = choice(coral_list)
-    if cor % period < search_time :
+    if cor % period < coral_search_time :
         for student in school.students:
             if cor % period < stay:
                 if randint(1,2) == 1:
@@ -1679,7 +1700,7 @@ def generate_ecosystem():
 
     if clock_fish == True:
         Eco.generate(   [Clock], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [1,1], Eco.colors, Eco_Barracuda)
+                        [1,1], clock_fish_colors, Eco_Barracuda)
 
     #-------------------------------------------------------------------------------
     # Eco_Whales
@@ -1688,10 +1709,10 @@ def generate_ecosystem():
     Eco_BabyWhaleFollower = []
     if WIDTH > 45:
         Eco.generate(   [Whale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [number_of_whales], ['blue','white','cyan'], Eco_Whales)
+                        [number_of_whales], whale_colors, Eco_Whales)
 
         Eco.generate(   [BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [number_of_baby_whales], ['blue','white','cyan'], Eco_BabyWhales)
+                        [number_of_baby_whales], whale_colors, Eco_BabyWhales)
 
         # For making a baby whale follow its mother
         if len(Eco_Whales) == 2:
@@ -1709,15 +1730,15 @@ def generate_ecosystem():
 
     Eco_Snails = []
     Eco.generate(   [Snail], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_snails], Eco.colors, Eco_Snails)
+                    [number_of_snails], snail_colors, Eco_Snails)
 
     Eco_SeaUrchins = []
     Eco.generate(   [SeaUrchin], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_sea_urchins], Eco.colors, Eco_SeaUrchins)
+                    [number_of_sea_urchins], sea_urchin_colors, Eco_SeaUrchins)
 
     Eco_Lobsters = []
     Eco.generate(   [Lobster], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_lobsters], ['red','magenta'], Eco_Lobsters)
+                    [number_of_lobsters], lobster_colors, Eco_Lobsters)
 
     # consolidate all bottomfeeders into one list
     Eco_BottomFeeders = Eco_Snails + Eco_SeaUrchins + Eco_Lobsters
@@ -1752,7 +1773,7 @@ def generate_all_schools():
     global max_fish
 
     School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
-    School_Colors = school_colors
+    School_Colors = fish_school_colors
     Follow_Types = ['calmRandomFollow', 'randomFollow']
     Lead_Types = ['calmRandomMove', 'randomMove']
     School_Centers = [  [HEIGHT*1/3,WIDTH*1/7],
@@ -1766,8 +1787,8 @@ def generate_all_schools():
     #number_of_sea_monkey_schools = 3
     #number_of_sea_monkey_schools = randint(2,8)
     fps_avg = ( max_fish / number_of_sea_monkey_schools )
-    fps_min = int(fps_avg / 4)+1     # 20
-    fps_max = int(fps_avg * 2)+1     # 60
+    fps_min = int(fps_avg / 4)+1
+    fps_max = int(fps_avg * 2)+1
 
     sea_monkey_schools = []
     SeaMonkeyFactory = SchoolFactory(AnimalType=SeaMonkey)
@@ -1778,8 +1799,8 @@ def generate_all_schools():
     #number_of_minnow_schools = 1
     #number_of_minnow_schools = randint(1,number_of_sea_monkey_schools/2)
     fps_avg = ( max_fish / 20 )
-    fps_min = int(fps_avg / 2)+1     # 10
-    fps_max = int(fps_avg * 1.5)+1   # 20
+    fps_min = int(fps_avg / 2)+1
+    fps_max = int(fps_avg * 1.5)+1
 
     minnow_schools = []
     MinnowFactory = SchoolFactory(AnimalType=Minnow, LeadType='calmRandomMove')
@@ -1837,8 +1858,12 @@ def automate_swimmers():
         Eco_BabyWhaleFollower[0].randomFollow(Eco_Whales[0], 7)
 
     # Schools
-    for school in schools[1:]:
-        school.automate()
+    if explorer_school == True:
+        for school in schools[1:]:
+            school.automate()
+    else:
+        for school in schools:
+            school.automate()
 
 # automate snail and lobster movement (sparse)
 def automate_bottomfeeders():
@@ -1889,16 +1914,71 @@ def automate_bubbles():
 
 # remove creatures if there are too many and program is too slow
 def reduce_ecosystem(count):
-    for _ in range(count):
-        # choose a school at random
-        unlucky_school = []
-        while len(unlucky_school) < 1:
-            unlucky_school = choice(sea_monkey_schools).students
+    ratio = 5       # ratio goal for seamonkeys / minnows
+    #subprocess.call(['tput', 'cup', '0', '0'])
+    #print "reducing..."
 
-        # choose a fish at random.  Erase it.  Remove from lists.
-        unlucky_fish = unlucky_school.pop( randint(0, len(unlucky_school)-1) )
-        unlucky_fish.erase()
-        Eco_Swimmers.remove(unlucky_fish)
+    #---------------------------------------------------------------------------
+    # if there are no fish to remove, don't attempt to
+    if len(schools) == 0 or len(Eco_Swimmers) == 0:
+        return
+    # if count is 0, make it 1
+    count = 1 if count == 0 else count
+
+    #---------------------------------------------------------------------------
+    # remove [count] fish from the aquarium
+    for _ in range(count):
+        # get ratio of seamonkeys to minonows
+        total_sea_monkeys = 0
+        for school in sea_monkey_schools:
+            total_sea_monkeys += len(school.students)
+        total_minnows = 0
+        for school in minnow_schools:
+            total_minnows += len(school.students)
+
+        try:
+            sm_m_ratio = (total_sea_monkeys / total_minnows)
+        except ZeroDivisionError:
+            sm_m_ratio = ratio + 1
+
+        #-----------------------------------------------------------------------
+        # choose a school at random
+        unlucky_class = []
+        class_selection_count = 0
+        while len(unlucky_class) < 1 and class_selection_count < 10:
+            class_selection_count += 1
+
+            #----------------------------------------------
+            # extra seamonkeys
+            if sm_m_ratio > ratio:
+                unlucky_school = choice(sea_monkey_schools)
+            # extra minnows
+            elif sm_m_ratio < ratio:
+                unlucky_school = choice(minnow_schools)
+            # right at the ratio
+            else:
+                unlucky_school = choice(schools)
+            #----------------------------------------------
+
+            unlucky_class  = unlucky_school.students
+
+        #-----------------------------------------------------------------------
+        # choose last fish in students list.  Erase it.  Remove from lists.
+        if len(unlucky_class) > min_fish_per_school:
+            unlucky_fish = unlucky_class.pop()
+            unlucky_fish.erase()
+            Eco_Swimmers.remove(unlucky_fish)
+
+            # recreate following order, after fish has been removed
+            unlucky_school.createFollowingOrder()
+
+        #-----------------------------------------------------------------------
+        # (if school is empty, remove it from the list of schools)
+        if len(unlucky_class) == 0:
+            try:
+                schools.remove(unlucky_school)
+            except:
+                pass
 
 
 ################################################################################
@@ -1914,6 +1994,13 @@ FarawayObject.position = [-1000, -1000]
 FarawayObject.size = [0,0]
 
 degree_symbol = unichr(176)    # For drawing bubbles
+
+# Prepare the dictionary for word bubbles (if set)
+if word_bubbles == True:
+    try:
+        word_list = open(word_file).read().splitlines()
+    except:
+        word_bubbles = False
 
 
 #------------------------------ CREATE AQUARIUM --------------------------------
@@ -1971,12 +2058,14 @@ generate_all_schools()
 # initial bubble list
 bub = 1
 bub_list = []
-#variable for changing which coral the school is going around
+# variable for changing which coral the school is going around
 cor = 0
-#variables for modulating ocean current
+# variable for making sure fish reduction doesn't happen forever
+reduce_clock = 0
+# variables for modulating ocean current
 ocean_current_value = 0
 ocean_current_count = 0
-#list of corals to choose from (when following)
+# list of corals to choose from (when following)
 coral_list = BG_Kelp + MG_Kelp + FG_Kelp + MG_BrainCoral + MG_TreeCoral
 
 
@@ -2034,6 +2123,42 @@ while True:
         t_b = time()
     Aquarium.display()
 
-    # if it's taking too much time before each refesh, remove some of the fish
-    if (t_b - t_a) > DELAY*1.1:
-        reduce_ecosystem(10)
+
+    #-------------------------- REDUCE ECOSYSTEM -------------------------------
+    if reduce_clock < 20:
+        #-----------------------------------------------------------------------
+        # if it's taking too much time before each refesh, remove some of the fish
+        if (t_b - t_a) > DELAY*1.25:
+            reduce_ecosystem(max_fish/10)
+            reduce_clock -= 1
+        elif (t_b - t_a) > DELAY*1.125:
+            reduce_ecosystem(max_fish/20)
+            reduce_clock -= 1
+        elif (t_b - t_a) > DELAY*1.1:
+            reduce_ecosystem(1)
+            reduce_clock -= 1
+        #-----------------------------------------------------------------------
+        else:
+            reduce_clock += 1
+
+    #---------------------------------------------------------------------------
+    if (t_b - t_a) > DELAY*1.4:
+        reduce_clock = 0
+
+
+    ##---------------------- debug printout -------------------------
+    #subprocess.call(['tput', 'cup', '0', '0'])
+    #print reduce_clock
+    #print (t_b - t_a)
+    #for school in schools:
+    #    try:
+    #        color = school.students[0].color
+    #    except:
+    #        color = ''
+
+    #    print "{:12}   {:3}   {}".format( school.__class__.__name__, 
+    #                                    len(school.students),
+    #                                    color,
+    #                                    school.following_order,
+    #                                  )
+    ##---------------------------------------------------------------
