@@ -42,20 +42,18 @@ scale = 1 if scale == 0 else scale
 #----------------------------- optional features -------------------------------
 draw_sand                       = True
 draw_water_surface              = True
-draw_air                        = True
 bubbles                         = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
-clock_fish                      = True
+clock_fish                      = False
 explorer_school                 = False
 
 # Generate random word bubbles
-word_bubbles                    = False
+word_bubbles                    = False     # "bubbles" must be True to work
 word_file                       = "/usr/share/dict/words"
 
 
 #----------------------------------- colors ------------------------------------
-# AVAILABLE COLORS  = ['red','green','blue','cyan','magenta','yellow','white']
 all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
 #-------------------------------------------------------------------------------
 water_colors        = ['cyan']
@@ -86,8 +84,11 @@ midground_kelp          = randint( 0 , 2*scale )
 # ... foreground
 foreground_dunes        = randint( 0 , 3*scale )
 foreground_kelp         = randint( 0 , 2*scale )
-# ... bubbles
-bubble_frequency        = 15        # (higher number means less frequent)
+# ... sand
+sand_position           = randint( HEIGHT*2/3 , HEIGHT*6/7 )
+# ... water
+water_position          = HEIGHT*1/7
+bubble_frequency        = 15            # (higher number means less frequent)
 
 
 #------------------------------------ life -------------------------------------
@@ -280,7 +281,7 @@ class Thing(object):
         self.getPicture()
         for y in range( self.size[0] ):
             for x in range( self.size[1] ):
-                if  y + self.position[0] > 1 and \
+                if  y + self.position[0] > 0 and \
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) and \
@@ -293,7 +294,7 @@ class Thing(object):
         self.getPicture()
         for y in range( self.size[0] ):
             for x in range( self.size[1] ):
-                if  y + self.position[0] > 1 and \
+                if  y + self.position[0] > 0 and \
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) :
@@ -1374,7 +1375,7 @@ def create_bubbles():
     bub += 1
     #recycle list
     if len(bub_list) >= 30:
-        del(bub_list[:20])
+        del(bub_list[:10])
         bub = 1
 
 # group a school of fish around a random coral every now and then 
@@ -2031,15 +2032,16 @@ Aquarium = Window("blue")
 #----------------------------- CREATE BACKGROUND -------------------------------
 # define water
 water_color = choice(water_colors)
-Water = Surface(HEIGHT*1/7, water_color)
+if draw_water_surface == True:
+    water_surface = water_position
+else:
+    water_surface = 0
+Water = Surface(water_surface, water_color)
 if draw_water_surface == True:
     Water.draw()
-if draw_air == True:
     Water.drawAbove()
 
 # define sand
-#sand_position = choice(range(HEIGHT*1/2, HEIGHT*6/7))
-sand_position = choice(range(HEIGHT*2/3, HEIGHT*6/7))
 sand_color = choice(sand_colors)
 Sand = Surface(sand_position, sand_color)
 if draw_sand == True:
@@ -2167,5 +2169,5 @@ while True:
             reduce_clock += 1
 
     #---------------------------------------------------------------------------
-    if (t_b - t_a) > DELAY*1.4:
+    elif (t_b - t_a) > DELAY*1.4:
         reduce_clock = 0
