@@ -41,7 +41,7 @@ scale = 1 if scale == 0 else scale
 
 #----------------------------- optional features -------------------------------
 draw_sand                       = True
-draw_water_surface              = True
+draw_water                      = False
 bubbles                         = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
@@ -88,7 +88,7 @@ foreground_kelp         = randint( 0 , 2*scale )
 sand_position           = randint( HEIGHT*2/3 , HEIGHT*6/7 )
 # ... water
 water_position          = HEIGHT*1/7
-bubble_frequency        = 15            # (higher number means less frequent)
+bubble_frequency        = 20            # (higher number means less frequent)
 
 
 #------------------------------------ life -------------------------------------
@@ -2032,12 +2032,12 @@ Aquarium = Window("blue")
 #----------------------------- CREATE BACKGROUND -------------------------------
 # define water
 water_color = choice(water_colors)
-if draw_water_surface == True:
+if draw_water == True:
     water_surface = water_position
 else:
     water_surface = 0
 Water = Surface(water_surface, water_color)
-if draw_water_surface == True:
+if draw_water == True:
     Water.draw()
     Water.drawAbove()
 
