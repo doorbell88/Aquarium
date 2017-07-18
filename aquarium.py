@@ -30,13 +30,13 @@ volume  = WIDTH * HEIGHT
 
 #------------------------------- time and space --------------------------------
 # for screen refresh rate
-DELAY              =    0.08
+DELAY                           = 0.08
 # used for scaling time fish periodically take to swim towards a coral/kelp
-coral_search_time  =    (WIDTH + HEIGHT) / 2
+coral_search_time               = (WIDTH + HEIGHT) / 2
 # scale (for how much stuff (eg. kelp) can fit in the terminal width)
-scale              =    WIDTH / 40
+scale                           = WIDTH / 40
 # avoid divide-by-zero errors
-scale = 1 if scale == 0 else scale
+scale                           = 1 if scale == 0 else scale
 
 
 #----------------------------- optional features -------------------------------
@@ -52,50 +52,54 @@ explorer_school                 = False
 word_bubbles                    = False     # "bubbles" must be True to work
 word_file                       = "/usr/share/dict/words"
 
+# print info about aquarium (can be toggled with ctrl-\)
+verbose                         = False
+
 
 #----------------------------------- colors ------------------------------------
 all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
 #-------------------------------------------------------------------------------
-water_colors        = ['cyan']
-bubble_colors       = ['cyan']
-sand_colors         = ['yellow','white','red','magenta','yellow']
-kelp_colors         = all_possible_colors
-coral_colors        = all_possible_colors
-creature_colors     = all_possible_colors
-lobster_colors      = ['red','magenta']
-snail_colors        = all_possible_colors
-sea_urchin_colors   = all_possible_colors
-fish_school_colors  = all_possible_colors
-whale_colors        = ['blue','white','cyan']
-clock_fish_colors   = all_possible_colors
+window_colors                   = ['blue','cyan']
+water_colors                    = ['cyan']
+bubble_colors                   = ['cyan']
+sand_colors                     = ['yellow','white','red','magenta','yellow']
+kelp_colors                     = all_possible_colors
+coral_colors                    = all_possible_colors
+creature_colors                 = all_possible_colors
+lobster_colors                  = ['red','magenta']
+snail_colors                    = all_possible_colors
+sea_urchin_colors               = all_possible_colors
+fish_school_colors              = all_possible_colors
+whale_colors                    = ['blue','white','cyan']
+clock_fish_colors               = all_possible_colors
 
 
 #---------------------------------- scenery ------------------------------------
 # ... background
-background_dunes        = randint( 0 , 4*scale )
-background_kelp         = randint( 0 , 3*scale )
-hill_kelp               = randint( 0 , 2*scale )
-hill_coral              = randint( 0 , 3*scale )
+background_dunes                = randint( 0 , 4*scale )
+background_kelp                 = randint( 0 , 3*scale )
+hill_kelp                       = randint( 0 , 2*scale )
+hill_coral                      = randint( 0 , 3*scale )
 # ... midground
-midground_dunes         = randint( 0 , 4*scale )
-midground_tree_coral    = randint( 0 , 8*scale )
-midground_brain_coral   = randint( 0 , 2*scale )
-midground_kelp          = randint( 0 , 2*scale )
+midground_dunes                 = randint( 0 , 4*scale )
+midground_tree_coral            = randint( 0 , 8*scale )
+midground_brain_coral           = randint( 0 , 2*scale )
+midground_kelp                  = randint( 0 , 2*scale )
 # ... foreground
-foreground_dunes        = randint( 0 , 3*scale )
-foreground_kelp         = randint( 0 , 2*scale )
+foreground_dunes                = randint( 0 , 3*scale )
+foreground_kelp                 = randint( 0 , 2*scale )
 # ... sand
-sand_position           = randint( HEIGHT*2/3 , HEIGHT*6/7 )
+sand_position                   = randint( HEIGHT*2/3 , HEIGHT*6/7 )
 # ... water
-water_position          = HEIGHT*1/7
-bubble_frequency        = 20            # (higher number means less frequent)
+water_position                  = HEIGHT*1/7
+bubble_frequency                = 30     # (higher number means less frequent)
 
 
 #------------------------------------ life -------------------------------------
 # ... fish schools
-max_fish                        = volume / 100
+max_fish                        = volume / 200
 min_fish_per_school             = 5
-number_of_sea_monkey_schools    = randint( 2 , 8 )
+number_of_sea_monkey_schools    = randint( 2 , 4 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
 number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
@@ -118,13 +122,20 @@ number_of_lobsters              = randint( 1*scale , 2*scale )
 
 #------------------------- SPECIAL HANDLING FUNCTIONS --------------------------
 
-def signal_handler(signum, frame):
+# catch SIGINT ( ctrl-c )
+def signal_SIGINT_handler(signum, frame):
     # (Show the cursor again)
     os.system('echo "\x1b[?25h"')
     os.system('tput sgr0')
     sys.exit()
+signal.signal(signal.SIGINT, signal_SIGINT_handler)
 
-signal.signal(signal.SIGINT, signal_handler)
+# catch SIGQUIT ( ctrl-\ )
+def signal_SIGQUIT_handler(signum, frame):
+    global verbose
+    # Toggle verbosity (info about aquarium)
+    verbose = not verbose
+signal.signal(signal.SIGQUIT, signal_SIGQUIT_handler)
 
 def debug_printout():
     subprocess.call(['tput', 'cup', '0', '0'])
@@ -1368,7 +1379,7 @@ class ShyNeighbor(Neighbor):
 def create_bubbles():
     global bub
     #randomly create bubbles
-    if bub % randint(1,bubble_frequency) == 1:
+    if bub % randint(1,bubble_frequency) == 2:
         bub_position = [HEIGHT-5, randint(1, WIDTH -3)]
         bub_color    = choice(bubble_colors)
         bub_list.append(Bubble(bub_position, bub_color))
@@ -2023,10 +2034,13 @@ if word_bubbles == True:
     except:
         word_bubbles = False
 
+# Look for argument for verbosity
+if len(sys.argv) > 1 and  sys.argv[1] in ['-v', '--verbose']:
+    verbose = True
 
 #------------------------------ CREATE AQUARIUM --------------------------------
 # instantiate Aquarium Window
-Aquarium = Window("blue")
+Aquarium = Window(choice(window_colors))
 
 
 #----------------------------- CREATE BACKGROUND -------------------------------
@@ -2147,7 +2161,7 @@ while True:
 
 
     #---------------------- debug printout -------------------------
-    if len(sys.argv) > 1 and  sys.argv[1] in ['-v', '--verbose']:
+    if verbose:
         debug_printout()
 
 
