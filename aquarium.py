@@ -1408,7 +1408,13 @@ def group_around_coral(school, period, stay):
 
 # generate a number of fish schools, each one randomized
 def generate_schools(number_of_schools, factory, school_list, lower_bound, upper_bound):
-    global School_Types, School_centers, Follow_Types, Lead_Types, School_Colors
+    global School_Types, Follow_Types, Lead_Types, School_Colors
+
+    if  not School_Types or \
+        not Follow_Types or \
+        not Lead_Types or \
+        not School_Colors:
+            return
 
     ###############################################################################################
     # SCHOOL FACTORY
@@ -1807,10 +1813,20 @@ def generate_all_schools():
     global number_of_minnow_schools
     global max_fish
 
+    sea_monkey_schools = []
+    minnow_schools = []
+    schools = sea_monkey_schools + minnow_schools
+
     #School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
     School_Types  = []
     for school_type in school_types:
-        School_Types.append(eval(school_type))
+        try:
+            School_Types.append(eval(school_type))
+        except:
+            pass
+
+    if len(School_Types) == 0:
+        return
 
     School_Colors = fish_school_colors
     Follow_Types = ['calmRandomFollow', 'randomFollow']
