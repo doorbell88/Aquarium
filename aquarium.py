@@ -97,6 +97,10 @@ bubble_frequency                = 30     # (higher number means less frequent)
 
 #------------------------------------ life -------------------------------------
 # ... fish schools
+#...............................................................................
+all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
+#...............................................................................
+school_types                    = all_school_types
 max_fish                        = volume / 200
 min_fish_per_school             = 5
 number_of_sea_monkey_schools    = randint( 2 , 4 )
@@ -1803,7 +1807,11 @@ def generate_all_schools():
     global number_of_minnow_schools
     global max_fish
 
-    School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
+    #School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
+    School_Types  = []
+    for school_type in school_types:
+        School_Types.append(eval(school_type))
+
     School_Colors = fish_school_colors
     Follow_Types = ['calmRandomFollow', 'randomFollow']
     Lead_Types = ['calmRandomMove', 'randomMove']
