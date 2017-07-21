@@ -62,7 +62,7 @@ all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
 window_colors                   = ['blue','cyan']
 water_colors                    = ['cyan']
 bubble_colors                   = ['cyan']
-sand_colors                     = ['yellow','white','red','magenta','yellow']
+sand_colors                     = ['yellow','white','red','magenta','green']
 kelp_colors                     = all_possible_colors
 coral_colors                    = all_possible_colors
 creature_colors                 = all_possible_colors
@@ -103,7 +103,7 @@ all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 school_types                    = all_school_types
 max_fish                        = volume / 200
 min_fish_per_school             = 5
-number_of_sea_monkey_schools    = randint( 2 , 4 )
+number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
 number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
@@ -1649,6 +1649,11 @@ def generate_background():
     # creat a consolidated list of Background objects
     BG_List = BG_Dunes + BG_Kelp
 
+    # sort by vertical position
+    BG_List.sort(key=lambda x: x.position[0] + x.size[0], reverse=False)
+    for item in BG_List:
+        item.draw()
+
 def generate_midground():
     global MG_List
     global MG_Dunes
@@ -1678,6 +1683,11 @@ def generate_midground():
     # creat a consolidated list of Background objects
     MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
 
+    # sort by vertical position
+    MG_List.sort(key=lambda x: x.position[0] + x.size[0], reverse=False)
+    for item in MG_List:
+        item.draw()
+
 def generate_foreground():
     global FG_List
     global FG_Dunes
@@ -1696,6 +1706,11 @@ def generate_foreground():
 
     # creat a consolidated list of Background objects
     FG_List = FG_Kelp + FG_Dunes 
+
+    # sort by vertical position
+    FG_List.sort(key=lambda x: x.position[0] + x.size[0], reverse=False)
+    for item in FG_List:
+        item.draw()
 
 def generate_ecosystem():
     global Eco_Creatures
@@ -1841,7 +1856,10 @@ def generate_all_schools():
     # --- SEA MONKEYS! ---#
     #number_of_sea_monkey_schools = 3
     #number_of_sea_monkey_schools = randint(2,8)
-    fps_avg = ( max_fish / number_of_sea_monkey_schools )
+    try:
+        fps_avg = ( max_fish / number_of_sea_monkey_schools )
+    except ZeroDivisionError:
+        fps_avg = 0
     fps_min = int(fps_avg / 4)+1
     fps_max = int(fps_avg * 2)+1
 
