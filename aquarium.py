@@ -103,7 +103,7 @@ all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 school_types                    = all_school_types
 max_fish                        = volume / 200
 min_fish_per_school             = 5
-number_of_sea_monkey_schools    = randint( 2 , 8 )
+number_of_sea_monkey_schools    = randint( 2 , 6 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
 number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
@@ -283,7 +283,7 @@ class Thing(object):
 
     # Get the picture of the object in question, and assign LEFT or RIGHT picture
     def getPicture(self):
-        self.picture = self.right()
+        #self.picture = self.right()
         if self.direction[1] < 0:
             self.picture = self.left()
         elif self.direction[1] > 0:
@@ -446,6 +446,14 @@ class MovingThing(Thing):
         if randint(1,500) == 1:
             self.direction[1] *= -1
             
+        # sometimes stop x-movement (float and bob for a bit)
+        if randint(1,20) == 1:
+            self.direction[1] = 0
+        # if not moving in x-direction, resume 
+        if self.direction[1] == 0:
+            if randint(1,8) == 1:
+                self.direction[1] = randint(-1,1)
+
         #speed
         # self.controlSpeed()
         self.move()
