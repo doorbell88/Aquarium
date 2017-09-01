@@ -58,11 +58,12 @@ verbose                         = False
 
 #----------------------------------- colors ------------------------------------
 all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
+all_possible_colors+= ['grey']
 #-------------------------------------------------------------------------------
 window_colors                   = ['blue','cyan']
 water_colors                    = ['cyan']
 bubble_colors                   = ['cyan']
-sand_colors                     = ['yellow','white','red','magenta','green']
+sand_colors                     = ['yellow','white','red','magenta','green','grey']
 kelp_colors                     = all_possible_colors
 coral_colors                    = all_possible_colors
 creature_colors                 = all_possible_colors
@@ -70,7 +71,8 @@ lobster_colors                  = ['red','magenta']
 snail_colors                    = all_possible_colors
 sea_urchin_colors               = all_possible_colors
 fish_school_colors              = all_possible_colors
-whale_colors                    = ['blue','white','cyan']
+whale_colors                    = ['blue','white','cyan','grey']
+jellyfish_colors                = ['white','cyan']
 clock_fish_colors               = all_possible_colors
 
 
@@ -101,18 +103,19 @@ bubble_frequency                = 30     # (higher number means less frequent)
 all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 #...............................................................................
 school_types                    = all_school_types
-max_fish                        = volume / 200
+max_fish                        = volume / 100
 min_fish_per_school             = 5
-number_of_sea_monkey_schools    = randint( 2 , 6 )
+number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
 number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
 number_of_baby_whales           = randint( 0 , 1 ) if volume > 1000 else 0
 number_of_barracudas            = randint( 0 , 1 ) if volume > 800  else 0
-number_of_tuna                  = randint( 0 , 4 )
-number_of_angelfish             = randint( 0 , 4 )
+number_of_tuna                  = randint( 2 , 4 )
+number_of_angelfish             = randint( 2 , 4 )
 number_of_minnows               = randint( 0 , 4 )
 number_of_seamonkeys            = randint( 0 , 4 )
+number_of_jellyfish             = randint( 2 , 4 )
 # ... bottomfeeders
 number_of_snails                = randint( 1*scale , 3*scale )
 number_of_sea_urchins           = randint( 1*scale , 2*scale )
@@ -163,7 +166,7 @@ def debug_printout():
 #---------------------------- FUNCTION DECORATORS ------------------------------
 
 def speed_check_before(movement_function):
-    def wrapper(self, *args):
+    def wrapper(self, *args, **kwargs):
 
         # keep speed from exploding
         if self.speed >= self.maxspeed:
@@ -171,14 +174,14 @@ def speed_check_before(movement_function):
         if self.speed < 0:
             self.speed = 0
 
-        movement_function(self, *args)              # flee or follow
+        movement_function(self, *args, **kwargs)              # flee or follow
 
     return wrapper
 
 def speed_check_after(movement_function):
-    def wrapper(self, *args):
+    def wrapper(self, *args, **kwargs):
 
-        movement_function(self, *args)              # flee or follow
+        movement_function(self, *args, **kwargs)              # flee or follow
 
         # keep speed from exploding
         if self.speed >= self.maxspeed:
@@ -189,7 +192,7 @@ def speed_check_after(movement_function):
     return wrapper
 
 def turn_around_water(movement_function):
-    def wrapper(self, *args):
+    def wrapper(self, *args, **kwargs):
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
             # left wall
@@ -206,11 +209,11 @@ def turn_around_water(movement_function):
         if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
             self.direction[0] = -1
         #--------------------------------------------------------------------------------
-        movement_function(self, *args)              # flee or follow
+        movement_function(self, *args, **kwargs)              # flee or follow
     return wrapper
 
 def turn_around_sand(movement_function):
-    def wrapper(self, *args):
+    def wrapper(self, *args, **kwargs):
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
             # left wall
@@ -227,7 +230,7 @@ def turn_around_sand(movement_function):
         if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
             self.direction[0] = -1
         #--------------------------------------------------------------------------------
-        movement_function(self, *args)              # flee or follow
+        movement_function(self, *args, **kwargs)              # flee or follow
     return wrapper
 
 
@@ -289,7 +292,10 @@ class Thing(object):
         elif self.direction[1] > 0:
             self.picture = self.right()
         # Get size of the object's picture
-        self.size = [ len(self.picture), len(self.picture[0][0]) ]
+        try:
+            self.size = [ len(self.picture), len(self.picture[0][0]) ]
+        except:
+            self.size = [0,0]
 
     # Draw the object
     def draw(self):
@@ -437,22 +443,26 @@ class MovingThing(Thing):
 
     # Move randomly up and down, but stay moving forward
     @speed_check_before
-    def calmRandomMove(self):
+    def calmRandomMove(self, y_rand=4, stop_rand=50, resume_rand=8, turn_rand=500):
         #only randomize movement in y-direction
-        if randint(1,4) == 1:
+        if randint(1,y_rand) == 1:
             self.direction[0] += randint(-1,1)
         if abs(self.direction[0]) > 1:
             self.direction[0] = 0
-        if randint(1,500) == 1:
-            self.direction[1] *= -1
+
+        #turn around (x-direction) every once in a while
+        if turn_rand:
+            if randint(1,turn_rand) == 1:
+                self.direction[1] *= -1
             
         # sometimes stop x-movement (float and bob for a bit)
-        if randint(1,20) == 1:
-            self.direction[1] = 0
-        # if not moving in x-direction, resume 
-        if self.direction[1] == 0:
-            if randint(1,8) == 1:
-                self.direction[1] = randint(-1,1)
+        if stop_rand:
+            if randint(1,stop_rand) == 1:
+                self.direction[1] = 0
+            # if not moving in x-direction, resume 
+            if self.direction[1] == 0:
+                if randint(1,resume_rand) == 1:
+                    self.direction[1] = randint(-1,1)
 
         #speed
         # self.controlSpeed()
@@ -721,6 +731,90 @@ class BabyWhale(Fish):
         ['\\________ '],
         ['/===_u`__)']              
         ]
+
+# Jellyfish
+class Jellyfish(MovingThing):
+    def __init__(self, position, color):
+        MovingThing.__init__(self, position, color)
+        self.maxspeed = 1
+        self.bell_0 = 10
+        self.bell_1 = 12
+        self.bell_2 = 14
+        self.bell_3 = 16
+        self.bell = randint(0, self.bell_3)
+
+    @turn_around_water
+    def move(self):
+        # stay moving horizontal mostly
+        if randint(1, 10) == 1:
+            self.direction[0] = choice([1,-1])
+        else:
+            self.direction[0] = 0
+
+        # only move on the "stroke"
+        if self.bell == 0:
+            MovingThing.move(self)
+        else:
+            MovingThing.erase(self)
+            MovingThing.draw(self)
+
+        # increment bell counter
+        self.bell = (self.bell+1) % self.bell_3
+
+    def left(self):
+        if self.bell < self.bell_0:
+            return self.left_0()
+        elif self.bell < self.bell_1:
+            return self.left_1()
+        elif self.bell < self.bell_2:
+            return self.left_2()
+        elif self.bell < self.bell_3:
+            return self.left_3()
+
+    def right(self):
+        if self.bell < self.bell_0:
+            return self.right_0()
+        elif self.bell < self.bell_1:
+            return self.right_1()
+        elif self.bell < self.bell_2:
+            return self.right_2()
+        elif self.bell < self.bell_3:
+            return self.right_3()
+
+    def left_0(self):
+        return [                            
+        ['(=']
+        ]
+    def left_1(self):
+        return [                            
+        ['{=']
+        ]
+    def left_2(self):
+        return [                            
+        ['[=']
+        ]
+    def left_3(self):
+        return [                            
+        ['|=']
+        ]
+
+    def right_0(self):
+        return [                            
+        ['=)']
+        ]
+    def right_1(self):
+        return [                            
+        ['=}']
+        ]
+    def right_2(self):
+        return [                            
+        ['=]']
+        ]
+    def right_3(self):
+        return [                            
+        ['=|']
+        ]
+
 
 # Snail
 class Snail(BottomFeeder):
@@ -1729,6 +1823,7 @@ def generate_ecosystem():
     global Eco_BabyWhales
     global Eco_BabyWhaleFollower
     global Eco_BottomFeeders
+    global Eco_Jellyfish
 
     ############################################################################
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
@@ -1790,6 +1885,13 @@ def generate_ecosystem():
         Eco_Whales += Eco_BabyWhales
 
     #-------------------------------------------------------------------------------
+    # Eco_Jellyfish
+    Eco_Jellyfish = []
+    Eco.generate(   [Jellyfish], [ [Eco.top, Eco.bottom], [SF.left, SF.right] ], \
+                    [number_of_jellyfish], jellyfish_colors, Eco_Jellyfish)
+
+
+    #-------------------------------------------------------------------------------
     # Eco_BottomFeeders
 
     Eco_Snails = []
@@ -1819,8 +1921,8 @@ def generate_ecosystem():
                     Eco_BabyWhaleFollower + Eco_BottomFeeders
 
     # creat a consolidated list of creature objects
-    Eco_Swimmers = Eco_Fishies + Eco_Barracuda + Eco_Whales + Eco_BabyWhales + \
-                   Eco_BabyWhaleFollower
+    Eco_Swimmers = Eco_Fishies + Eco_Barracuda + Eco_Whales + Eco_Jellyfish + \
+                   Eco_BabyWhales + Eco_BabyWhaleFollower
 
 def generate_all_schools():
     global schools
@@ -1933,6 +2035,9 @@ def automate_swimmers():
 
     for whale in Eco_Whales:
         whale.calmRandomMove()      # This includes the baby whale follower (adds spunk)
+
+    for jellyfish in Eco_Jellyfish:
+        jellyfish.calmRandomMove(y_rand=20, stop_rand=0, resume_rand=8, turn_rand=0)
 
     # If there's a baby whale following a mother whale, follow it
     if len(Eco_BabyWhaleFollower) == 1:
@@ -2087,6 +2192,7 @@ if word_bubbles == True:
 # Look for argument for verbosity
 if len(sys.argv) > 1 and  sys.argv[1] in ['-v', '--verbose']:
     verbose = True
+
 
 #------------------------------ CREATE AQUARIUM --------------------------------
 # instantiate Aquarium Window
