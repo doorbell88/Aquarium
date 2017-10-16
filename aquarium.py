@@ -9,15 +9,24 @@ section below.
 --------------------------------------------------------------------------------
 """
 
-from random import randint, choice
+from random import choice
+from random import randint as random_int
 from time import sleep, time
 from datetime import datetime
 from copy import deepcopy
-from termcolor import colored, cprint
+from termcolor import colored
 import os
 import sys
 import signal
 import subprocess
+
+
+# wrapper for random.randint() --> avoids errors with float args
+def randint(a,b):
+    X = int(min(a,b))
+    Y = int(max(a,b))
+    return random_int(X,Y)
+
 
 # get size of terminal
 WIDTH  = int( subprocess.check_output(['tput','cols']) )
@@ -32,16 +41,16 @@ volume  = WIDTH * HEIGHT
 # for screen refresh rate
 DELAY                           = 0.08
 # used for scaling time fish periodically take to swim towards a coral/kelp
-coral_search_time               = (WIDTH + HEIGHT) / 2
+coral_search_time               = int((WIDTH + HEIGHT) / 2)
 # scale (for how much stuff (eg. kelp) can fit in the terminal width)
-scale                           = WIDTH / 40
+scale                           = int(WIDTH / 40)
 # avoid divide-by-zero errors
 scale                           = 1 if scale == 0 else scale
 
 
 #----------------------------- optional features -------------------------------
 draw_sand                       = True
-draw_water                      = False
+draw_water                      = True
 bubbles                         = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
@@ -58,20 +67,20 @@ verbose                         = False
 
 #----------------------------------- colors ------------------------------------
 all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
-all_possible_colors+= ['grey']
+#all_possible_colors+= ['grey']
 #-------------------------------------------------------------------------------
 window_colors                   = ['blue','cyan']
 water_colors                    = ['cyan']
 bubble_colors                   = ['cyan']
-sand_colors                     = ['yellow','white','red','magenta','green','grey']
-kelp_colors                     = all_possible_colors
+sand_colors                     = ['yellow','white','red','magenta','green']#,'grey']
+kelp_colors                     = [x for x in all_possible_colors if x != 'grey']
 coral_colors                    = all_possible_colors
 creature_colors                 = all_possible_colors
 lobster_colors                  = ['red','magenta']
 snail_colors                    = all_possible_colors
 sea_urchin_colors               = all_possible_colors
 fish_school_colors              = all_possible_colors
-whale_colors                    = ['blue','white','cyan','grey']
+whale_colors                    = ['blue','white','cyan']#,'grey']
 jellyfish_colors                = ['white','cyan']
 clock_fish_colors               = all_possible_colors
 
@@ -103,7 +112,7 @@ bubble_frequency                = 30     # (higher number means less frequent)
 all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 #...............................................................................
 school_types                    = all_school_types
-max_fish                        = volume / 100
+max_fish                        = int(volume / 100)
 min_fish_per_school             = 5
 number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
@@ -115,7 +124,7 @@ number_of_tuna                  = randint( 2 , 4 )
 number_of_angelfish             = randint( 2 , 4 )
 number_of_minnows               = randint( 0 , 4 )
 number_of_seamonkeys            = randint( 0 , 4 )
-number_of_jellyfish             = randint( 2 , 4 )
+number_of_jellyfish             = randint( 4 , 10 )
 # ... bottomfeeders
 number_of_snails                = randint( 1*scale , 3*scale )
 number_of_sea_urchins           = randint( 1*scale , 2*scale )
@@ -146,22 +155,23 @@ signal.signal(signal.SIGQUIT, signal_SIGQUIT_handler)
 
 def debug_printout():
     subprocess.call(['tput', 'cup', '0', '0'])
-    print "reduce_clock:  {}".format(reduce_clock)
-    print "frame time:    {}".format((t_b - t_a))
-    print 
-    print "{:12}  {:4}  {}".format("SCHOOL TYPE", "SIZE", "COLOR")
-    print "{}".format(28*"-")
+    print("reduce_clock:  {}".format(reduce_clock))
+    print("frame time:    {}".format((t_b - t_a)))
+    print()
+    print("{:12}  {:4}  {}".format("SCHOOL TYPE", "SIZE", "COLOR"))
+    print("{}".format(28*"-"))
     for school in schools:
         try:
             color = school.students[0].color
         except:
             color = ''
 
-        print "{:12}  {:4}  {}".format( school.__class__.__name__, 
+        print("{:12}  {:4}  {}".format( school.__class__.__name__, 
                                         len(school.students),
                                         color,
                                         school.following_order,
                                       )
+             )
 
 #---------------------------- FUNCTION DECORATORS ------------------------------
 
@@ -272,7 +282,7 @@ class Window(object):
         os.system('tput cup 0 0')
         # print
         for row in range( len(self.aquarium_box) ):
-            print "".join(self.aquarium_box[row])
+            print("".join(self.aquarium_box[row]))
 
 # Things that can be drawn in the aquarium
 class Thing(object):
@@ -307,7 +317,7 @@ class Thing(object):
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) and \
                     self.picture[y][0][x] != " " :          # Avoids drawing a blank box around thing
-                        Aquarium.aquarium_box[ y + self.position[0] ][ x + self.position[1] ] \
+                        Aquarium.aquarium_box[ int(y + self.position[0]) ][ int(x + self.position[1]) ] \
                         = colored(self.picture[y][0][x], self.color)
 
     # Remove object (for when it's moving)
@@ -319,8 +329,8 @@ class Thing(object):
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) :
-                        Aquarium.aquarium_box[ y + self.position[0] ][ x + self.position[1] ] \
-                        = Aquarium.aquarium_box_background [ y + self.position[0] ][ x + self.position[1] ]
+                        Aquarium.aquarium_box[ int(y + self.position[0]) ][ int(x + self.position[1]) ] \
+                        = Aquarium.aquarium_box_background [ int(y + self.position[0]) ][ int(x + self.position[1]) ]
 
 #------------------------------- MOVING THINGS ---------------------------------
 
@@ -674,7 +684,7 @@ class Clock(Fish):
         self.maxspeed = 2
 
     def left(self):
-        now              = datetime.now()
+        now         = datetime.now()
         day         = now.day
         hour        = int(now.strftime('%I'))
         minute      = now.minute
@@ -684,7 +694,7 @@ class Clock(Fish):
         ['{}:{:02d} {}'.format(hour, minute, ampm)],
         ]
     def right(self):
-        now              = datetime.now()
+        now         = datetime.now()
         day         = now.day
         hour        = int(now.strftime('%I'))
         minute      = now.minute
@@ -736,25 +746,39 @@ class BabyWhale(Fish):
 class Jellyfish(MovingThing):
     def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
+        self.speed    = 1
         self.maxspeed = 1
-        self.bell_0 = 10
-        self.bell_1 = 12
-        self.bell_2 = 14
-        self.bell_3 = 16
+        # each jellyfish swims a little differently
+        self.bell_0 = randint(6, 10)
+        self.bell_1 = self.bell_0 + randint(1,3)
+        self.bell_2 = self.bell_1 + randint(1,3)
+        self.bell_3 = self.bell_2 + randint(1,3)
+        # start each jellyfish at a different part of the "stroke"
         self.bell = randint(0, self.bell_3)
 
     @turn_around_water
     def move(self):
-        # stay moving horizontal mostly
-        if randint(1, 10) == 1:
-            self.direction[0] = choice([1,-1])
-        else:
-            self.direction[0] = 0
-
         # only move on the "stroke"
         if self.bell == 0:
+            # stay moving horizontal mostly
+            if randint(1, 10) == 1:
+                self.direction[0] = choice([1,-1])
+                #---------------------------------------------------------------
+                # TURN AROUND (Y)
+                    # top (water)
+                if self.position[0] < ( Water.position + (self.speed + 1) ):
+                    self.direction[0] = 1
+                    #bottom (sand)
+                if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
+                    self.direction[0] = -1
+                #---------------------------------------------------------------
+            else:
+                self.direction[0] = 0
+            # Move
             MovingThing.move(self)
         else:
+            # set direction back to horizontal
+            self.direction[0] = 0
             MovingThing.erase(self)
             MovingThing.draw(self)
 
@@ -1029,7 +1053,7 @@ class Surface(object):
     def draw(self):
         #draw line
         x = 1
-        y = self.position
+        y = int(self.position)
         while x < (WIDTH - 1):
             Aquarium.aquarium_box[y][x] = colored( '~', self.color)
             x += 1
@@ -1038,11 +1062,11 @@ class Surface(object):
     def drawUnder(self):
         #draw under line
         x = 1
-        y = self.position + 1
+        y = int(self.position + 1)
         while y < (HEIGHT - 1):
             while x < (WIDTH - 2):
                 Aquarium.aquarium_box[y][x] = colored( ',', self.color)
-                x += (HEIGHT - self.position) / (y - self.position)  #1
+                x += int((HEIGHT - self.position) / (y - self.position))  #1
                 #Aquarium.aquarium_box[y][x] = ' '
                 x += 1   #1
             #x = (y % 2) + 1
@@ -1392,7 +1416,7 @@ class Tree(School):
         self.following_order.append("0")        # First student is main leader
 
         n = len(self.students)
-        for i in range( (n-(n%2)) / 2 ):        # Number of branches is ((n-(n%2)) / 2)
+        for i in range( int((n-(n%2)) / 2) ):        # Number of branches is ((n-(n%2)) / 2)
             self.branches.append(self.students[i])
             # Add latest branch leader (twice)
             self.following_order.append(self.branches[-1])
@@ -1475,7 +1499,7 @@ class ShyNeighbor(Neighbor):
         Neighbor.automate(self)
         for student in self.students:
             nearest = student.findNearest(self.students)
-            if student.getDistance(nearest) <= self.FollowDistance:
+            if student.getDistance(nearest)[3] <= self.FollowDistance:
                 #student.flee( student.findNearest(self.students), 1 )
                 student.flee( nearest, self.FollowDistance - 1 )
 
@@ -1553,7 +1577,7 @@ def ocean_drift():
             ocean_current_value = 0
         return
     else:
-        ocean_current_drift = (ocean_current_value * ocean_current_count) / 30
+        ocean_current_drift = int((ocean_current_value * ocean_current_count) / 30)
         direction = abs(ocean_current_count)/ocean_current_count
         ocean_current_count -= direction
         ocean_current_value += 1
@@ -1734,7 +1758,7 @@ def generate_background():
         hill_right    = hill_position + hill_spread
         hill_y_bounds = [randint(HEIGHT*1/3,Sand.position), Sand.position]
         hill_x_bounds = [hill_left, hill_right]
-        hill_number   = ( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) / 500
+        hill_number   = int(( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) / 500)
 
         SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], \
                         [ hill_y_bounds , hill_x_bounds ], \
@@ -1887,7 +1911,7 @@ def generate_ecosystem():
     #-------------------------------------------------------------------------------
     # Eco_Jellyfish
     Eco_Jellyfish = []
-    Eco.generate(   [Jellyfish], [ [Eco.top, Eco.bottom], [SF.left, SF.right] ], \
+    Eco.generate(   [Jellyfish], [ [Eco.top, (Eco.bottom-Eco.top)/2], [SF.left, SF.right] ], \
                     [number_of_jellyfish], jellyfish_colors, Eco_Jellyfish)
 
 
@@ -1967,7 +1991,7 @@ def generate_all_schools():
     #number_of_sea_monkey_schools = 3
     #number_of_sea_monkey_schools = randint(2,8)
     try:
-        fps_avg = ( max_fish / number_of_sea_monkey_schools )
+        fps_avg = ( int(max_fish / number_of_sea_monkey_schools) )
     except ZeroDivisionError:
         fps_avg = 0
     fps_min = int(fps_avg / 4)+1
@@ -1981,7 +2005,7 @@ def generate_all_schools():
     # --- MINNOWS! --- #
     #number_of_minnow_schools = 1
     #number_of_minnow_schools = randint(1,number_of_sea_monkey_schools/2)
-    fps_avg = ( max_fish / 20 )
+    fps_avg = int(max_fish / 20)
     fps_min = int(fps_avg / 2)+1
     fps_max = int(fps_avg * 1.5)+1
 
@@ -2124,7 +2148,7 @@ def reduce_ecosystem(count):
             total_minnows += len(school.students)
 
         try:
-            sm_m_ratio = (total_sea_monkeys / total_minnows)
+            sm_m_ratio = int(total_sea_monkeys / total_minnows)
         except ZeroDivisionError:
             sm_m_ratio = ratio + 1
 
@@ -2172,15 +2196,16 @@ def reduce_ecosystem(count):
 ##################################### MAIN #####################################
 
 #-------------------------------- PREPARATION ----------------------------------
-# Hide the cursor
-os.system('echo -ne "\x1b[?25l"')
-
 # Set a blank faraway object (for initial object when using FindNearest)
 FarawayObject = type('test', (object,), {})()
 FarawayObject.position = [-1000, -1000]
 FarawayObject.size = [0,0]
 
-degree_symbol = unichr(176)    # For drawing bubbles
+# check Python version (for defining how to lookup unicode characters)
+if sys.version_info[0] < 3:
+    degree_symbol = unichr(176)    # For drawing bubbles
+else:
+    degree_symbol = chr(176)       # For drawing bubbles
 
 # Prepare the dictionary for word bubbles (if set)
 if word_bubbles == True:
@@ -2260,6 +2285,8 @@ ocean_current_count = 0
 # list of corals to choose from (when following)
 coral_list = BG_Kelp + MG_Kelp + FG_Kelp + MG_BrainCoral + MG_TreeCoral
 
+# Hide the cursor
+os.system('echo -ne "\x1b[?25l"')
 
 while True:
     # ocean currents move all the swimmers
