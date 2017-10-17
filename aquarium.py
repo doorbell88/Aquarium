@@ -2138,7 +2138,7 @@ def reduce_ecosystem(count):
 
     #---------------------------------------------------------------------------
     # remove [count] fish from the aquarium
-    for _ in range(count):
+    for _ in range(int(count)):
         # get ratio of seamonkeys to minonows
         total_sea_monkeys = 0
         for school in sea_monkey_schools:
