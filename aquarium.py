@@ -41,16 +41,16 @@ volume  = WIDTH * HEIGHT
 # for screen refresh rate
 DELAY                           = 0.08
 # used for scaling time fish periodically take to swim towards a coral/kelp
-coral_search_time               = int((WIDTH + HEIGHT) / 2)
+coral_search_time               = (WIDTH + HEIGHT) // 2
 # scale (for how much stuff (eg. kelp) can fit in the terminal width)
-scale                           = int(WIDTH / 40)
+scale                           = WIDTH // 40
 # avoid divide-by-zero errors
 scale                           = 1 if scale == 0 else scale
 
 
 #----------------------------- optional features -------------------------------
 draw_sand                       = True
-draw_water                      = True
+draw_water                      = False
 bubbles                         = True
 underwater_hill                 = True
 periodic_ocean_current_drift    = False
@@ -87,22 +87,22 @@ clock_fish_colors               = all_possible_colors
 
 #---------------------------------- scenery ------------------------------------
 # ... background
-background_dunes                = randint( 0 , 4*scale )
+background_dunes                = randint( 0 , 3*scale ) #randint( 0 , 4*scale )
 background_kelp                 = randint( 0 , 3*scale )
 hill_kelp                       = randint( 0 , 2*scale )
 hill_coral                      = randint( 0 , 3*scale )
 # ... midground
-midground_dunes                 = randint( 0 , 4*scale )
+midground_dunes                 = randint( 0 , 1*scale ) #randint( 0 , 4*scale )
 midground_tree_coral            = randint( 0 , 8*scale )
 midground_brain_coral           = randint( 0 , 2*scale )
 midground_kelp                  = randint( 0 , 2*scale )
 # ... foreground
-foreground_dunes                = randint( 0 , 3*scale )
+foreground_dunes                = randint( 0 , 1*scale ) #randint( 0 , 3*scale )
 foreground_kelp                 = randint( 0 , 2*scale )
 # ... sand
-sand_position                   = randint( HEIGHT*2/3 , HEIGHT*6/7 )
+sand_position                   = randint( HEIGHT*2//3 , HEIGHT*6//7 )
 # ... water
-water_position                  = HEIGHT*1/7
+water_position                  = HEIGHT*1//7
 bubble_frequency                = 30     # (higher number means less frequent)
 
 
@@ -112,7 +112,7 @@ bubble_frequency                = 30     # (higher number means less frequent)
 all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 #...............................................................................
 school_types                    = all_school_types
-max_fish                        = int(volume / 100)
+max_fish                        = volume // 100
 min_fish_per_school             = 5
 number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
@@ -292,7 +292,7 @@ class Thing(object):
 
         # self.direction = [0,0]
         self.size = [0,0]
-        self.picture = [['']]
+        self.picture = ['']
 
     # Get the picture of the object in question, and assign LEFT or RIGHT picture
     def getPicture(self):
@@ -303,7 +303,7 @@ class Thing(object):
             self.picture = self.right()
         # Get size of the object's picture
         try:
-            self.size = [ len(self.picture), len(self.picture[0][0]) ]
+            self.size = [ len(self.picture), len(self.picture[0]) ]
         except:
             self.size = [0,0]
 
@@ -316,9 +316,9 @@ class Thing(object):
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) and \
-                    self.picture[y][0][x] != " " :          # Avoids drawing a blank box around thing
+                    self.picture[y][x] != " " :          # Avoids drawing a blank box around thing
                         Aquarium.aquarium_box[ int(y + self.position[0]) ][ int(x + self.position[1]) ] \
-                        = colored(self.picture[y][0][x], self.color)
+                        = colored(self.picture[y][x], self.color)
 
     # Remove object (for when it's moving)
     def erase(self):
@@ -350,7 +350,7 @@ class MovingThing(Thing):
         
         # Initial null values for each object, so that it can be drawn the first time
         self.size = [0,0]
-        self.picture = [['']]
+        self.picture = ['']
 
     # Move object
     def move(self):
@@ -394,8 +394,8 @@ class MovingThing(Thing):
         dx_tail = target_tail - self.position[1]
         dx_front = target_front - self.position[1]
 
-        distance_tail_sq = (dx_tail**2) + ((dy/2)**2)
-        distance_front_sq = (dx_front**2) + ((dy/2)**2)
+        distance_tail_sq = (dx_tail**2) + ((dy//2)**2)
+        distance_front_sq = (dx_front**2) + ((dy//2)**2)
 
         return [dy, dx_tail, dx_front, distance_tail_sq, distance_front_sq]
 
@@ -446,7 +446,7 @@ class MovingThing(Thing):
             self.direction[0] = 0
         # x-direction
         if abs(self.direction[1]) > 1:
-            self.direction[1] = abs(self.direction[1])/self.direction[1]
+            self.direction[1] = abs(self.direction[1]) // self.direction[1]
         # speed
         # self.controlSpeed()
         self.move()
@@ -494,9 +494,9 @@ class MovingThing(Thing):
         if dr_sq  >= (distance**2):
             # if dx > distance or dy > distance/2:
             if dy != 0:
-                self.direction[0] = ( dy/abs(dy) )
+                self.direction[0] = ( dy//abs(dy) )
             if dx != 0:
-                self.direction[1] = ( dx/abs(dx) )
+                self.direction[1] = ( dx//abs(dx) )
 
             self.speed += self.accelerate       # Get back to leader
             # self.move()                       # Move straight to leader
@@ -517,9 +517,9 @@ class MovingThing(Thing):
         if dr_sq <= (distance**2):
             # if dx > distance or dy > distance/2:
             if dy != 0:
-                self.direction[0] = -( dy/abs(dy) )
+                self.direction[0] = -( dy//abs(dy) )
             if dx != 0:
-                self.direction[1] = -( dx/abs(dx) )
+                self.direction[1] = -( dx//abs(dx) )
 
             # self.speed += self.accelerate     # Get ready to flee quickly
             self.move()                         # Move straight away from the enemy
@@ -582,38 +582,38 @@ class SeaMonkey(Fish):
     def left(self):
         if self.direction[0] < 0:
             return  [           \
-            ['`']
+            '`'
             ]
         elif self.direction[0] > 0:
             return  [           \
-            [',']
+            ','
             ]
         else:
             return  [           \
-            ['-']
+            '-'
             ]
     def right(self):
         if self.direction[1] == 0:
             if self.direction[0] == 0:
                 return  [           \
-                ['-']
+                '-'
                 ]
             else:
                 return  [           \
-                ['\'']
+                '\''
                 ]
         else:
             if self.direction[0] < 0:
                 return  [           \
-                [',']
+                ','
                 ]
             elif self.direction[0] > 0:
                 return  [           \
-                ['`']
+                '`'
                 ]
             else:
                 return  [           \
-                ['-']
+                '-'
                 ]
 
 # Fish (small)
@@ -624,11 +624,11 @@ class Minnow(Fish):
 
     def left(self):
         return  [           \
-        ['<']
+        '<'
         ]
     def right(self):
         return  [       \
-        ['>']
+        '>'
         ]
 
 # Fish (medium)
@@ -639,11 +639,11 @@ class AngelFish(Fish):
 
     def left(self):
         return  [       \
-        ['<(']
+        '<('
         ]
     def right(self):
         return  [       \
-        [')>']
+        ')>'
         ]
 
 # Fish (large)
@@ -654,11 +654,11 @@ class Tuna(Fish):
 
     def left(self):
         return  [       \
-        ['<=(']
+        '<=('
         ]
     def right(self):
         return  [       \
-        [')=>']
+        ')=>'
         ]
 
 # Fish (long)
@@ -669,12 +669,12 @@ class Barracuda(Fish):
 
     def left(self):
         return  [       \
-        ['<==^=-<']
+        '<==^=-<'
         ]
 
     def right(self):
         return  [       \
-        ['>-=^==>']
+        '>-=^==>'
         ]
 
 # Clock - displays time in 12-hr format
@@ -691,7 +691,7 @@ class Clock(Fish):
         second      = now.second
         ampm        = now.strftime('%p').lower()
         return  [           \
-        ['{}:{:02d} {}'.format(hour, minute, ampm)],
+        '{}:{:02d} {}'.format(hour, minute, ampm),
         ]
     def right(self):
         now         = datetime.now()
@@ -701,7 +701,7 @@ class Clock(Fish):
         second      = now.second
         ampm        = now.strftime('%p').lower()
         return  [           \
-        ['{}:{:02d} {}'.format(hour, minute, ampm)],
+        '{}:{:02d} {}'.format(hour, minute, ampm),
         ]
 
 # Whale
@@ -712,16 +712,16 @@ class Whale(Fish):
 
     def left(self):
         return [                            
-        [' _--.-^---_____/'],
-        ['(__`______===== '],
-        ['    V          \\']               
+        ' _--.-^---_____/',
+        '(__`______===== ',
+        '    V          \\'               
         ]
 
     def right(self):
         return [                            
-        ['\\_____---^-.--_ '],
-        [' =====______`__)'],
-        ['/          V    ']                
+        '\\_____---^-.--_ ',
+        ' =====______`__)',
+        '/          V    '                
         ]
 
 # Baby Whale
@@ -732,14 +732,14 @@ class BabyWhale(Fish):
 
     def left(self):
         return [                            
-        [' ________/'],
-        ['(__`u_===\\']     
+        ' ________/',
+        '(__`u_===\\'     
         ]
 
     def right(self):
         return [                            
-        ['\\________ '],
-        ['/===_u`__)']              
+        '\\________ ',
+        '/===_u`__)'              
         ]
 
 # Jellyfish
@@ -807,36 +807,36 @@ class Jellyfish(MovingThing):
 
     def left_0(self):
         return [                            
-        ['(=']
+        '(='
         ]
     def left_1(self):
         return [                            
-        ['{=']
+        '{='
         ]
     def left_2(self):
         return [                            
-        ['[=']
+        '[='
         ]
     def left_3(self):
         return [                            
-        ['|=']
+        '|='
         ]
 
     def right_0(self):
         return [                            
-        ['=)']
+        '=)'
         ]
     def right_1(self):
         return [                            
-        ['=}']
+        '=}'
         ]
     def right_2(self):
         return [                            
-        ['=]']
+        '=]'
         ]
     def right_3(self):
         return [                            
-        ['=|']
+        '=|'
         ]
 
 
@@ -848,11 +848,11 @@ class Snail(BottomFeeder):
 
     def left(self):
         return  [           \
-        ['@']
+        '@'
         ]
     def right(self):
         return  [       \
-        ['@']
+        '@'
         ]
 
 # Sea Urchin
@@ -863,16 +863,16 @@ class SeaUrchin(BottomFeeder):
 
     def left(self):
         return [                            
-        ['  .w.  '],
-        ['_\ | /_'],
-        ['> ,*, <']     
+        '  .w.  ',
+        '_\ | /_',
+        '> ,*, <'     
         ]
 
     def right(self):
         return [                            
-        ['  .v.  '],
-        ['_\ | /_'],
-        ['> ,*, <']     
+        '  .v.  ',
+        '_\ | /_',
+        '> ,*, <'     
         ]
 
 # Lobster
@@ -884,41 +884,41 @@ class Lobster(BottomFeeder):
     def left(self):
         if randint(0,20) == 1:
             return [                            
-            ['\./  '],
-            ['>M=={'],
-            ['     ']       
+            '\./  ',
+            '>M=={',
+            '     '       
             ]
         elif randint(0,20) == 2:
             return [                            
-            ['_|.  '],
-            ['>M=={'],
-            ['     ']       
+            '_|.  ',
+            '>M=={',
+            '     '       
             ]
         else:
             return [                            
-            ['\|.  '],
-            ['>M=={'],
-            ['     ']       
+            '\|.  ',
+            '>M=={',
+            '     '       
             ]
 
     def right(self):
         if randint(0,20) == 1:
             return [                            
-            ['  \./'],
-            ['}==M<'],
-            ['     ']       
+            '  \./',
+            '}==M<',
+            '     '       
             ]
         elif randint(0,20) == 2:
             return [                            
-            ['  .|_'],
-            ['}==M<'],
-            ['     ']       
+            '  .|_',
+            '}==M<',
+            '     '       
             ]
         else:
             return [                            
-            ['  .|/'],
-            ['}==M<'],
-            ['     ']       
+            '  .|/',
+            '}==M<',
+            '     '       
             ]
 
 #----------------------------------- DEBRIS ------------------------------------
@@ -966,39 +966,39 @@ class Bubble(Debris):
     # First set of bubble images
     def _left1(self):
         return  [           \
-        ['o O'],
-        [' : '],
+        'o O',
+        ' : ',
         ]
     def _right1(self):
         return  [       \
-        ['o .'],
-        ['.%s ' %(degree_symbol)],
+        'o .',
+        '.%s ' %(degree_symbol),
         ] 
 
     # Second set of bubble images
     def _left2(self):
         return  [           \
-        ['o. '],
-        ['   '],
-        [' .%s' %(degree_symbol)],
+        'o. ',
+        '   ',
+        ' .%s' %(degree_symbol),
         ]
     def _right2(self):
         return  [       \
-        [' o.'],
-        ['.  '],
-        ['  .'],
+        ' o.',
+        '.  ',
+        '  .',
         ] 
 
     # Third set of bubble images
     def _left3(self):
         return  [           \
-        ['%s :' %(degree_symbol)],
-        [' . '],
+        '%s :' %(degree_symbol),
+        ' . ',
         ]
     def _right3(self):
         return  [       \
-        [' %s:' %(degree_symbol)],
-        ['.  '],
+        ' %s:' %(degree_symbol),
+        '.  ',
         ] 
 
     # Bubble shows the time
@@ -1007,19 +1007,19 @@ class Bubble(Debris):
         #['{}:{:02d}:{:02d}'.format(hour, minute, second)],
         #]
         return  [           \
-        ['{}:{:02d} {}'.format(self.hour, self.minute, self.ampm)],
+        '{}:{:02d} {}'.format(self.hour, self.minute, self.ampm),
         ]
 
     # Bubble shows the date
     def _date(self):
         return  [           \
-        ['{} {}'.format(self.month_name, self.day)],
+        '{} {}'.format(self.month_name, self.day),
         ]
 
     # Random words
     def _words(self):
         return  [           \
-        ['{}'.format(self.word)],
+        '{}'.format(self.word),
         ]
 
 #------------------------------ NONMOVING THINGS -------------------------------
@@ -1033,7 +1033,7 @@ class NonMovingThing(Thing):
 
         self.direction = [0,0]
         self.size = [0,0]
-        self.picture = [['']]
+        self.picture = ['']
 
         # self.draw()
 
@@ -1041,7 +1041,7 @@ class NonMovingThing(Thing):
     def getPicture(self):
         self.picture = self.image()
         # Get size of the object's picture
-        self.size = [ len(self.picture), len(self.picture[0][0]) ]
+        self.size = [ len(self.picture), len(self.picture[0]) ]
 
 # Surfaces (for sea and sand)
 class Surface(object):
@@ -1066,7 +1066,7 @@ class Surface(object):
         while y < (HEIGHT - 1):
             while x < (WIDTH - 2):
                 Aquarium.aquarium_box[y][x] = colored( ',', self.color)
-                x += int((HEIGHT - self.position) / (y - self.position))  #1
+                x += (HEIGHT - self.position) // (y - self.position)  #1
                 #Aquarium.aquarium_box[y][x] = ' '
                 x += 1   #1
             #x = (y % 2) + 1
@@ -1098,63 +1098,63 @@ class Dune(NonMovingThing):
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 1 and \
                     x + self.position[1] < (WIDTH-1) :
-                    if self.picture[y][0][x] != 'R':        # edges of dune drawing should be ommitted
+                    if self.picture[y][x] != 'R':        # edges of dune drawing should be ommitted
                         Aquarium.aquarium_box[ y + self.position[0] ][ x + self.position[1] ] \
-                        = colored(self.picture[y][0][x], self.color)
+                        = colored(self.picture[y][x], self.color)
 
 # Dunes
 class SmallDune(Dune):
     def image(self):
         return [                            
-        ['RRR.~""~.RRR'],
-        ['RR/; . . \RR'],
-        ['~`; . . . `~']                
+        'RRR.~""~.RRR',
+        'RR/; . . \RR',
+        '~`; . . . `~'                
         ]
 
 class BigDune(Dune):
     def image(self):
         return [                            
-        ['RRRRRRR,.~"""""~. ,RRRRRR'],
-        ['RRRR/; . . . . . . .\RRRR'],
-        ['RR/;. . . . . . . . . \RR'],              
-        ['~`; . . . . . . . . . .`~']               
+        'RRRRRRR,.~"""""~. ,RRRRRR',
+        'RRRR/; . . . . . . .\RRRR',
+        'RR/;. . . . . . . . . \RR',              
+        '~`; . . . . . . . . . .`~'               
         ]
 
 class HugeDune(Dune):
     def image(self):
         return [                            
-        ['RRRRRR,.~"""""""~. ,RRRRRR'],
-        ['RRRR/; . . . . . . .\RRRRR'],
-        ['RR/;. . . . . . . . . \RRR'],             
-        ['R/;. . . . . . . . . . \RR'],             
-        ['/;. . . . . . . . . . . \R'],             
-        ['~` . . . . . . . . . . `~R']              
+        'RRRRRR,.~"""""""~. ,RRRRRR',
+        'RRRR/; . . . . . . .\RRRRR',
+        'RR/;. . . . . . . . . \RRR',             
+        'R/;. . . . . . . . . . \RR',             
+        '/;. . . . . . . . . . . \R',             
+        '~` . . . . . . . . . . `~R'              
         ]
 
 class SlopedDune(Dune):
     def image(self):
         return [                            
-        ['RRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRRRRRRRRR'],
-        ['RRRRRR/; . . . . . . .\RRRRRRRRRRRRRRRRRRRRRRR'],
-        ['RRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRRRRRRR'],             
-        ['RRR/;. . . . . . . . . . . \RRRRRRRRRRRRRRRRRR'],             
-        ['RR/;. . . . . . . . . . . . ,-----____RRRRRRRR'],             
-        ['R/;. . . . . . . . . . . ,;/;. . . . . .\RRRRR'],             
-        ['/;. . . . . . . . . . .,/;. . . . . . . . \RRR'],             
-        ['~` . . . . . . . . . .,;;. . . . . . . . . .`~']              
+        'RRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRRRRRRRRR',
+        'RRRRRR/; . . . . . . .\RRRRRRRRRRRRRRRRRRRRRRR',
+        'RRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRRRRRRR',             
+        'RRR/;. . . . . . . . . . . \RRRRRRRRRRRRRRRRRR',             
+        'RR/;. . . . . . . . . . . . ,-----____RRRRRRRR',             
+        'R/;. . . . . . . . . . . ,;/;. . . . . .\RRRRR',             
+        '/;. . . . . . . . . . .,/;. . . . . . . . \RRR',             
+        '~` . . . . . . . . . .,;;. . . . . . . . . .`~'              
         ]
 
 class SlantedDune(Dune):
     def image(self):
         return [                            
-        ['RRRRRRRRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRR'],
-        ['RRRRRRRRRRR/;. . . . . . . \RRRRRRRRRRRRRRRRR'],
-        ['RRRRRRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRR'],              
-        ['RRRRRR/; . . . . . . . . . . \RRRRRRRRRRRRRRR'],              
-        ['RRRR/;. . . . . . . . . . . ,-----.___RRRRRRR'],              
-        ['RR/; . . . . . . . . . . ,;/; . . . . . \RRRR'],              
-        ['/;. . . . . . . . . . .,/;. . . . . . . .\RRR'],              
-        ['~` . . . . . . . . . .,; . . . . . . . . . `~']               
+        'RRRRRRRRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRR',
+        'RRRRRRRRRRR/;. . . . . . . \RRRRRRRRRRRRRRRRR',
+        'RRRRRRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRR',              
+        'RRRRRR/; . . . . . . . . . . \RRRRRRRRRRRRRRR',              
+        'RRRR/;. . . . . . . . . . . ,-----.___RRRRRRR',              
+        'RR/; . . . . . . . . . . ,;/; . . . . . \RRRR',              
+        '/;. . . . . . . . . . .,/;. . . . . . . .\RRR',              
+        '~` . . . . . . . . . .,; . . . . . . . . . `~'               
         ]
 
 
@@ -1173,147 +1173,147 @@ class TreeCoral(NonMovingThing):
         
     def _image1(self):
         return [                            
-        ['-_   \/'],
-        [' \/ -/-'],
-        ['  \ /  '],                
-        ['   |-  '],                
+        '-_   \/',
+        ' \/ -/-',
+        '  \ /  ',                
+        '   |-  ',                
         ]
 
     def _image2(self):
         return [                            
-        ['_|/ |/ '],
-        ['  \|/  '],                
-        ['   |   '],                
+        '_|/ |/ ',
+        '  \|/  ',                
+        '   |   ',                
         ]
 
 class BrainCoral(NonMovingThing):
     def image(self):
         return [
-        ['    ,#&.   '],
-        [' *#*@*@@&*.'],                
-        ['*@@*&*@**%&'],                
+        '    ,#&.   ',
+        ' *#*@*@@&*.',                
+        '*@@*&*@**%&',                
         ]
 
 class Kelp(NonMovingThing):
     def image(self):
         return [
-        [' V '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],                
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
+        ' V ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',                
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
         ]
 
 class LongKelp(NonMovingThing):
     def image(self):
         return [
-        [' V '],                
-        [' | '],                
-        ['\| '],                
-        [' | '],
-        ['\|/'],
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],                
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        [' | '],                
-        [' | '],
-        [' | '],
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        ['\| '],
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],
-        ['\|/'],
-        [' | '],                    
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        ['\| '],
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],
-        ['\|/'],
-        ['\|/'],                                
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        ['\| '],
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],
-        ['\| '],                
-        [' | '],                
-        [' |/'],                
-        [' | '],                
-        ['\|/'],
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],
-        ['\|/'],
-        [' | '],                    
-        ['\|/'],                                
-        [' |/'],                
-        [' | '],                
-        ['\| '],                
-        [' | '],                
+        ' V ',                
+        ' | ',                
+        '\| ',                
+        ' | ',
+        '\|/',
+        ' | ',                    
+        '\|/',                                
+        ' |/',                
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        ' | ',                
+        ' | ',
+        ' | ',
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        '\| ',
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        ' | ',                    
+        '\|/',                                
+        ' |/',
+        '\|/',
+        ' | ',                    
+        ' | ',                    
+        '\|/',                                
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        '\| ',
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        ' | ',                    
+        '\|/',                                
+        ' |/',
+        '\|/',
+        '\|/',                                
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        '\| ',
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',
+        '\| ',                
+        ' | ',                
+        ' |/',                
+        ' | ',                
+        '\|/',
+        ' | ',                    
+        '\|/',                                
+        ' |/',
+        '\|/',
+        ' | ',                    
+        '\|/',                                
+        ' |/',                
+        ' | ',                
+        '\| ',                
+        ' | ',                
         ]
 
 
@@ -1416,7 +1416,7 @@ class Tree(School):
         self.following_order.append("0")        # First student is main leader
 
         n = len(self.students)
-        for i in range( int((n-(n%2)) / 2) ):        # Number of branches is ((n-(n%2)) / 2)
+        for i in range( (n-(n%2)) // 2):        # Number of branches is ((n-(n%2)) // 2
             self.branches.append(self.students[i])
             # Add latest branch leader (twice)
             self.following_order.append(self.branches[-1])
@@ -1577,8 +1577,8 @@ def ocean_drift():
             ocean_current_value = 0
         return
     else:
-        ocean_current_drift = int((ocean_current_value * ocean_current_count) / 30)
-        direction = abs(ocean_current_count)/ocean_current_count
+        ocean_current_drift = (ocean_current_value * ocean_current_count) // 30
+        direction = abs(ocean_current_count)//ocean_current_count
         ocean_current_count -= direction
         ocean_current_value += 1
 
@@ -1588,10 +1588,10 @@ def ocean_drift():
             try:
                 fish_depth  = (fish.position[0])
                 water_depth = (Aquarium.height - Water.position)
-                depth_ratio = 1.0*(water_depth / fish_depth)
+                depth_ratio = 1.0*(water_depth // fish_depth)
 
                 current_sections = 3
-                current_at_depth = 1.0*(ocean_current_drift * (depth_ratio / current_sections))
+                current_at_depth = 1.0*(ocean_current_drift * (depth_ratio // current_sections))
 
                 fish.position[1] += int(current_at_depth)
 
@@ -1611,7 +1611,8 @@ def ocean_drift():
 
 # Create an Abstract Factory that can create schools
 class SchoolFactory(object):
-    def __init__(   self, SchoolType=Tree, SchoolSize=20, SchoolCenter=[HEIGHT/2,WIDTH/2],
+    def __init__(   self, SchoolType=Tree, SchoolSize=20,
+            SchoolCenter=[HEIGHT//2,WIDTH//2],
                     AnimalType=SeaMonkey, FollowType='calmRandomFollow', FollowDistance=2,
                     LeadType='randomMove', Color='red'):
         self.SchoolType = SchoolType
@@ -1742,7 +1743,7 @@ def generate_background():
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
     ############################################################################
     BG_Dunes = []
-    SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2/3, HEIGHT-1], [SF.left, SF.right] ], \
+    SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2//3, HEIGHT-1], [SF.left, SF.right] ], \
                     [background_dunes], [sand_color], BG_Dunes)
 
     BG_Kelp = []
@@ -1753,12 +1754,12 @@ def generate_background():
     if underwater_hill == True:
         # Create an underwater hill
         hill_position = randint(SF.left, SF.right)
-        hill_spread   = randint(WIDTH*1/4, WIDTH*1/3)
+        hill_spread   = randint(WIDTH*1//4, WIDTH*1//3)
         hill_left     = hill_position - hill_spread
         hill_right    = hill_position + hill_spread
-        hill_y_bounds = [randint(HEIGHT*1/3,Sand.position), Sand.position]
+        hill_y_bounds = [randint(HEIGHT*1//3,Sand.position), Sand.position]
         hill_x_bounds = [hill_left, hill_right]
-        hill_number   = int(( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) / 500)
+        hill_number   = ( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) // 500
 
         SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], \
                         [ hill_y_bounds , hill_x_bounds ], \
@@ -1823,7 +1824,7 @@ def generate_foreground():
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
     ############################################################################
     FG_Kelp = []
-    SF.generate(    [LongKelp], [ [Water.position+1, HEIGHT*2/3], [2, WIDTH-2] ], \
+    SF.generate(    [LongKelp], [ [Water.position+1, HEIGHT*2//3], [2, WIDTH-2] ], \
                     [0*scale,3*scale], [kelp_color], FG_Kelp)
 
     FG_Dunes = []
@@ -1911,7 +1912,7 @@ def generate_ecosystem():
     #-------------------------------------------------------------------------------
     # Eco_Jellyfish
     Eco_Jellyfish = []
-    Eco.generate(   [Jellyfish], [ [Eco.top, (Eco.bottom-Eco.top)/2], [SF.left, SF.right] ], \
+    Eco.generate(   [Jellyfish], [ [Eco.top, (Eco.bottom-Eco.top)//2], [SF.left, SF.right] ], \
                     [number_of_jellyfish], jellyfish_colors, Eco_Jellyfish)
 
 
@@ -1980,22 +1981,22 @@ def generate_all_schools():
     School_Colors = fish_school_colors
     Follow_Types = ['calmRandomFollow', 'randomFollow']
     Lead_Types = ['calmRandomMove', 'randomMove']
-    School_Centers = [  [HEIGHT*1/3,WIDTH*1/7],
-                        [HEIGHT*1/3,WIDTH*5/7],
-                        [HEIGHT*1/2,WIDTH*1/7],
-                        [HEIGHT*1/2,WIDTH*5/7],
-                        [HEIGHT*2/3,WIDTH*1/7],
-                        [HEIGHT*2/3,WIDTH*5/7]]
+    School_Centers = [  [HEIGHT*1//3,WIDTH*1//7],
+                        [HEIGHT*1//3,WIDTH*5//7],
+                        [HEIGHT*1//2,WIDTH*1//7],
+                        [HEIGHT*1//2,WIDTH*5//7],
+                        [HEIGHT*2//3,WIDTH*1//7],
+                        [HEIGHT*2//3,WIDTH*5//7]]
 
     # --- SEA MONKEYS! ---#
     #number_of_sea_monkey_schools = 3
     #number_of_sea_monkey_schools = randint(2,8)
     try:
-        fps_avg = ( int(max_fish / number_of_sea_monkey_schools) )
+        fps_avg = ( max_fish // number_of_sea_monkey_schools ) 
     except ZeroDivisionError:
         fps_avg = 0
-    fps_min = int(fps_avg / 4)+1
-    fps_max = int(fps_avg * 2)+1
+    fps_min = (fps_avg // 4)+1
+    fps_max = (fps_avg *  2)+1
 
     sea_monkey_schools = []
     SeaMonkeyFactory = SchoolFactory(AnimalType=SeaMonkey)
@@ -2005,8 +2006,8 @@ def generate_all_schools():
     # --- MINNOWS! --- #
     #number_of_minnow_schools = 1
     #number_of_minnow_schools = randint(1,number_of_sea_monkey_schools/2)
-    fps_avg = int(max_fish / 20)
-    fps_min = int(fps_avg / 2)+1
+    fps_avg = (max_fish // 20)
+    fps_min = (fps_avg // 2)+1
     fps_max = int(fps_avg * 1.5)+1
 
     minnow_schools = []
@@ -2148,7 +2149,7 @@ def reduce_ecosystem(count):
             total_minnows += len(school.students)
 
         try:
-            sm_m_ratio = int(total_sea_monkeys / total_minnows)
+            sm_m_ratio = (total_sea_monkeys // total_minnows)
         except ZeroDivisionError:
             sm_m_ratio = ratio + 1
 
@@ -2353,10 +2354,10 @@ while True:
         #-----------------------------------------------------------------------
         # if it's taking too much time before each refesh, remove some of the fish
         if (t_b - t_a) > DELAY*1.25:
-            reduce_ecosystem(max_fish/10)
+            reduce_ecosystem(max_fish//10)
             reduce_clock -= 1
         elif (t_b - t_a) > DELAY*1.125:
-            reduce_ecosystem(max_fish/20)
+            reduce_ecosystem(max_fish//20)
             reduce_clock -= 1
         elif (t_b - t_a) > DELAY*1.1:
             reduce_ecosystem(1)
@@ -2366,5 +2367,5 @@ while True:
             reduce_clock += 1
 
     #---------------------------------------------------------------------------
-    elif (t_b - t_a) > DELAY*1.4:
-        reduce_clock = 0
+    #elif (t_b - t_a) > DELAY*1.4:
+    #    reduce_clock = 0
