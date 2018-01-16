@@ -1,0 +1,20 @@
+WISHLIST FOR FEATURES TO ADD TO aquarium.py
+
+- Landscape Scrolling
+	--> Continuously scrolling landscape
+	--> keep all the animals, but allow user to scroll with <--,-->
+			(That way you can look at a different landscape)
+
+- Pause / Resume
+
+- Save aquarium (and bring it up whenever)
+
+- Print out characteristics
+	(eg. to see what kind of fish schools are present)
+
+- Design an aquarium (using command-line arguments)
+
+- Landscape features:
+	- cliff (off to the side)
+	- valley
+	- (snail -- @)
