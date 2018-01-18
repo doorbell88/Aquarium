@@ -607,11 +607,11 @@ class Minnow(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  (           \
+        return  (
         '<',
         )
     def right(self):
-        return  (       \
+        return  (
         '>',
         )
 
@@ -622,11 +622,11 @@ class AngelFish(Fish):
         self.maxspeed = 1
 
     def left(self):
-        return  (       \
+        return  (
         '<(',
         )
     def right(self):
-        return  (       \
+        return  (
         ')>',
         )
 
@@ -637,11 +637,11 @@ class Tuna(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  (       \
+        return  (
         '<=(',
         )
     def right(self):
-        return  (       \
+        return  (
         ')=>',
         )
 
@@ -652,12 +652,12 @@ class Barracuda(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  (       \
+        return  (
         '<==^=-<',
         )
 
     def right(self):
-        return  (       \
+        return  (
         '>-=^==>',
         )
 
@@ -674,7 +674,7 @@ class Clock(Fish):
         minute      = now.minute
         second      = now.second
         ampm        = now.strftime('%p').lower()
-        return  (           \
+        return  (
         '{}:{:02d} {}'.format(hour, minute, ampm),
         )
     def right(self):
@@ -684,7 +684,7 @@ class Clock(Fish):
         minute      = now.minute
         second      = now.second
         ampm        = now.strftime('%p').lower()
-        return  (           \
+        return  (
         '{}:{:02d} {}'.format(hour, minute, ampm),
         )
 
@@ -831,11 +831,11 @@ class Snail(BottomFeeder):
         self.maxspeed = 1
 
     def left(self):
-        return  (           \
+        return  (
         '@',
         )
     def right(self):
-        return  (       \
+        return  (
         '@',
         )
 
@@ -949,25 +949,25 @@ class Bubble(Debris):
 
     # First set of bubble images
     def _left1(self):
-        return  (           \
+        return  (
         'o O',
         ' : ',
         )
     def _right1(self):
-        return  (       \
+        return  (
         'o .',
         '.%s ' %(degree_symbol),
         ) 
 
     # Second set of bubble images
     def _left2(self):
-        return  (           \
+        return  (
         'o. ',
         '   ',
         ' .%s' %(degree_symbol),
         )
     def _right2(self):
-        return  (       \
+        return  (
         ' o.',
         '.  ',
         '  .',
@@ -975,34 +975,34 @@ class Bubble(Debris):
 
     # Third set of bubble images
     def _left3(self):
-        return  (           \
+        return  (
         '%s :' %(degree_symbol),
         ' . ',
         )
     def _right3(self):
-        return  (       \
+        return  (
         ' %s:' %(degree_symbol),
         '.  ',
         ) 
 
     # Bubble shows the time
     def _clock(self):
-        #return  (           \
+        #return  (
         #'{}:{:02d}:{:02d}'.format(hour, minute, second),
         #)
-        return  (           \
+        return  (
         '{}:{:02d} {}'.format(self.hour, self.minute, self.ampm),
         )
 
     # Bubble shows the date
     def _date(self):
-        return  (           \
+        return  (
         '{} {}'.format(self.month_name, self.day),
         )
 
     # Random words
     def _words(self):
-        return  (           \
+        return  (
         '{}'.format(self.word),
         )
 
