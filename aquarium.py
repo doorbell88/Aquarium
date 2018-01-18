@@ -581,40 +581,24 @@ class SeaMonkey(Fish):
     
     def left(self):
         if self.direction[0] < 0:
-            return  [           \
-            '`'
-            ]
+            return  ('`',)
         elif self.direction[0] > 0:
-            return  [           \
-            ','
-            ]
+            return  (',',)
         else:
-            return  [           \
-            '-'
-            ]
+            return  ('-',)
     def right(self):
         if self.direction[1] == 0:
             if self.direction[0] == 0:
-                return  [           \
-                '-'
-                ]
+                return  ('-',)
             else:
-                return  [           \
-                '\''
-                ]
+                return  ('\'',)
         else:
             if self.direction[0] < 0:
-                return  [           \
-                ','
-                ]
+                return  (',',)
             elif self.direction[0] > 0:
-                return  [           \
-                '`'
-                ]
+                return  ('`',)
             else:
-                return  [           \
-                '-'
-                ]
+                return  ('-',)
 
 # Fish (small)
 class Minnow(Fish):
@@ -623,13 +607,13 @@ class Minnow(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  [           \
-        '<'
-        ]
+        return  (           \
+        '<',
+        )
     def right(self):
-        return  [       \
-        '>'
-        ]
+        return  (       \
+        '>',
+        )
 
 # Fish (medium)
 class AngelFish(Fish):
@@ -638,13 +622,13 @@ class AngelFish(Fish):
         self.maxspeed = 1
 
     def left(self):
-        return  [       \
-        '<('
-        ]
+        return  (       \
+        '<(',
+        )
     def right(self):
-        return  [       \
-        ')>'
-        ]
+        return  (       \
+        ')>',
+        )
 
 # Fish (large)
 class Tuna(Fish):
@@ -653,13 +637,13 @@ class Tuna(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  [       \
-        '<=('
-        ]
+        return  (       \
+        '<=(',
+        )
     def right(self):
-        return  [       \
-        ')=>'
-        ]
+        return  (       \
+        ')=>',
+        )
 
 # Fish (long)
 class Barracuda(Fish):
@@ -668,14 +652,14 @@ class Barracuda(Fish):
         self.maxspeed = 2
 
     def left(self):
-        return  [       \
-        '<==^=-<'
-        ]
+        return  (       \
+        '<==^=-<',
+        )
 
     def right(self):
-        return  [       \
-        '>-=^==>'
-        ]
+        return  (       \
+        '>-=^==>',
+        )
 
 # Clock - displays time in 12-hr format
 class Clock(Fish):
@@ -690,9 +674,9 @@ class Clock(Fish):
         minute      = now.minute
         second      = now.second
         ampm        = now.strftime('%p').lower()
-        return  [           \
+        return  (           \
         '{}:{:02d} {}'.format(hour, minute, ampm),
-        ]
+        )
     def right(self):
         now         = datetime.now()
         day         = now.day
@@ -700,9 +684,9 @@ class Clock(Fish):
         minute      = now.minute
         second      = now.second
         ampm        = now.strftime('%p').lower()
-        return  [           \
+        return  (           \
         '{}:{:02d} {}'.format(hour, minute, ampm),
-        ]
+        )
 
 # Whale
 class Whale(Fish):
@@ -711,18 +695,18 @@ class Whale(Fish):
         self.maxspeed = 1
 
     def left(self):
-        return [                            
+        return (                            
         ' _--.-^---_____/',
         '(__`______===== ',
         '    V          \\'               
-        ]
+        )
 
     def right(self):
-        return [                            
+        return (                            
         '\\_____---^-.--_ ',
         ' =====______`__)',
         '/          V    '                
-        ]
+        )
 
 # Baby Whale
 class BabyWhale(Fish):
@@ -731,16 +715,16 @@ class BabyWhale(Fish):
         self.maxspeed = 1
 
     def left(self):
-        return [                            
+        return (                            
         ' ________/',
         '(__`u_===\\'     
-        ]
+        )
 
     def right(self):
-        return [                            
+        return (                            
         '\\________ ',
         '/===_u`__)'              
-        ]
+        )
 
 # Jellyfish
 class Jellyfish(MovingThing):
@@ -806,38 +790,38 @@ class Jellyfish(MovingThing):
             return self.right_3()
 
     def left_0(self):
-        return [                            
-        '(='
-        ]
+        return (                            
+        '(=',
+        )
     def left_1(self):
-        return [                            
-        '{='
-        ]
+        return (                            
+        '{=',
+        )
     def left_2(self):
-        return [                            
-        '[='
-        ]
+        return (                            
+        '[=',
+        )
     def left_3(self):
-        return [                            
-        '|='
-        ]
+        return (                            
+        '|=',
+        )
 
     def right_0(self):
-        return [                            
-        '=)'
-        ]
+        return (                            
+        '=)',
+        )
     def right_1(self):
-        return [                            
-        '=}'
-        ]
+        return (                            
+        '=}',
+        )
     def right_2(self):
-        return [                            
-        '=]'
-        ]
+        return (                            
+        '=)',
+        )
     def right_3(self):
-        return [                            
-        '=|'
-        ]
+        return (                            
+        '=|',
+        )
 
 
 # Snail
@@ -847,13 +831,13 @@ class Snail(BottomFeeder):
         self.maxspeed = 1
 
     def left(self):
-        return  [           \
-        '@'
-        ]
+        return  (           \
+        '@',
+        )
     def right(self):
-        return  [       \
-        '@'
-        ]
+        return  (       \
+        '@',
+        )
 
 # Sea Urchin
 class SeaUrchin(BottomFeeder):
@@ -862,18 +846,18 @@ class SeaUrchin(BottomFeeder):
         self.maxspeed = 1
 
     def left(self):
-        return [                            
+        return (                            
         '  .w.  ',
         '_\ | /_',
         '> ,*, <'     
-        ]
+        )
 
     def right(self):
-        return [                            
+        return (                            
         '  .v.  ',
         '_\ | /_',
         '> ,*, <'     
-        ]
+        )
 
 # Lobster
 class Lobster(BottomFeeder):
@@ -883,43 +867,43 @@ class Lobster(BottomFeeder):
 
     def left(self):
         if randint(0,20) == 1:
-            return [                            
+            return (                            
             '\./  ',
             '>M=={',
             '     '       
-            ]
+            )
         elif randint(0,20) == 2:
-            return [                            
+            return (                            
             '_|.  ',
             '>M=={',
             '     '       
-            ]
+            )
         else:
-            return [                            
+            return (                            
             '\|.  ',
             '>M=={',
             '     '       
-            ]
+            )
 
     def right(self):
         if randint(0,20) == 1:
-            return [                            
+            return (                            
             '  \./',
             '}==M<',
             '     '       
-            ]
+            )
         elif randint(0,20) == 2:
-            return [                            
+            return (                            
             '  .|_',
             '}==M<',
             '     '       
-            ]
+            )
         else:
-            return [                            
+            return (                            
             '  .|/',
             '}==M<',
             '     '       
-            ]
+            )
 
 #----------------------------------- DEBRIS ------------------------------------
 
@@ -965,62 +949,62 @@ class Bubble(Debris):
 
     # First set of bubble images
     def _left1(self):
-        return  [           \
+        return  (           \
         'o O',
         ' : ',
-        ]
+        )
     def _right1(self):
-        return  [       \
+        return  (       \
         'o .',
         '.%s ' %(degree_symbol),
-        ] 
+        ) 
 
     # Second set of bubble images
     def _left2(self):
-        return  [           \
+        return  (           \
         'o. ',
         '   ',
         ' .%s' %(degree_symbol),
-        ]
+        )
     def _right2(self):
-        return  [       \
+        return  (       \
         ' o.',
         '.  ',
         '  .',
-        ] 
+        ) 
 
     # Third set of bubble images
     def _left3(self):
-        return  [           \
+        return  (           \
         '%s :' %(degree_symbol),
         ' . ',
-        ]
+        )
     def _right3(self):
-        return  [       \
+        return  (       \
         ' %s:' %(degree_symbol),
         '.  ',
-        ] 
+        ) 
 
     # Bubble shows the time
     def _clock(self):
-        #return  [           \
-        #['{}:{:02d}:{:02d}'.format(hour, minute, second)],
-        #]
-        return  [           \
+        #return  (           \
+        #'{}:{:02d}:{:02d}'.format(hour, minute, second),
+        #)
+        return  (           \
         '{}:{:02d} {}'.format(self.hour, self.minute, self.ampm),
-        ]
+        )
 
     # Bubble shows the date
     def _date(self):
-        return  [           \
+        return  (           \
         '{} {}'.format(self.month_name, self.day),
-        ]
+        )
 
     # Random words
     def _words(self):
-        return  [           \
+        return  (           \
         '{}'.format(self.word),
-        ]
+        )
 
 #------------------------------ NONMOVING THINGS -------------------------------
 
@@ -1105,35 +1089,35 @@ class Dune(NonMovingThing):
 # Dunes
 class SmallDune(Dune):
     def image(self):
-        return [                            
+        return (                            
         'RRR.~""~.RRR',
         'RR/; . . \RR',
         '~`; . . . `~'                
-        ]
+        )
 
 class BigDune(Dune):
     def image(self):
-        return [                            
+        return (                            
         'RRRRRRR,.~"""""~. ,RRRRRR',
         'RRRR/; . . . . . . .\RRRR',
         'RR/;. . . . . . . . . \RR',              
         '~`; . . . . . . . . . .`~'               
-        ]
+        )
 
 class HugeDune(Dune):
     def image(self):
-        return [                            
+        return (                            
         'RRRRRR,.~"""""""~. ,RRRRRR',
         'RRRR/; . . . . . . .\RRRRR',
         'RR/;. . . . . . . . . \RRR',             
         'R/;. . . . . . . . . . \RR',             
         '/;. . . . . . . . . . . \R',             
         '~` . . . . . . . . . . `~R'              
-        ]
+        )
 
 class SlopedDune(Dune):
     def image(self):
-        return [                            
+        return (                            
         'RRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRRRRRRRRR',
         'RRRRRR/; . . . . . . .\RRRRRRRRRRRRRRRRRRRRRRR',
         'RRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRRRRRRR',             
@@ -1142,11 +1126,11 @@ class SlopedDune(Dune):
         'R/;. . . . . . . . . . . ,;/;. . . . . .\RRRRR',             
         '/;. . . . . . . . . . .,/;. . . . . . . . \RRR',             
         '~` . . . . . . . . . .,;;. . . . . . . . . .`~'              
-        ]
+        )
 
 class SlantedDune(Dune):
     def image(self):
-        return [                            
+        return (                            
         'RRRRRRRRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRR',
         'RRRRRRRRRRR/;. . . . . . . \RRRRRRRRRRRRRRRRR',
         'RRRRRRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRR',              
@@ -1155,7 +1139,7 @@ class SlantedDune(Dune):
         'RR/; . . . . . . . . . . ,;/; . . . . . \RRRR',              
         '/;. . . . . . . . . . .,/;. . . . . . . .\RRR',              
         '~` . . . . . . . . . .,; . . . . . . . . . `~'               
-        ]
+        )
 
 
 # Corals
@@ -1172,31 +1156,31 @@ class TreeCoral(NonMovingThing):
                            ])
         
     def _image1(self):
-        return [                            
+        return (                            
         '-_   \/',
         ' \/ -/-',
         '  \ /  ',                
         '   |-  ',                
-        ]
+        )
 
     def _image2(self):
-        return [                            
+        return (                            
         '_|/ |/ ',
         '  \|/  ',                
         '   |   ',                
-        ]
+        )
 
 class BrainCoral(NonMovingThing):
     def image(self):
-        return [
+        return (
         '    ,#&.   ',
         ' *#*@*@@&*.',                
         '*@@*&*@**%&',                
-        ]
+        )
 
 class Kelp(NonMovingThing):
     def image(self):
-        return [
+        return (
         ' V ',                
         ' | ',                
         ' |/',                
@@ -1210,11 +1194,11 @@ class Kelp(NonMovingThing):
         ' | ',                
         '\| ',                
         ' | ',                
-        ]
+        )
 
 class LongKelp(NonMovingThing):
     def image(self):
-        return [
+        return (
         ' V ',                
         ' | ',                
         '\| ',                
@@ -1314,7 +1298,7 @@ class LongKelp(NonMovingThing):
         ' | ',                
         '\| ',                
         ' | ',                
-        ]
+        )
 
 
 # School class
