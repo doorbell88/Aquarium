@@ -548,7 +548,6 @@ class Debris (MovingThing):
     def move(self):
         if  self.position[0] <= ( Water.position ):
             self.erase()
-            del self
         else:
             MovingThing.move(self)
 
@@ -1498,10 +1497,6 @@ def create_bubbles():
         bub_color    = choice(bubble_colors)
         bub_list.append(Bubble(bub_position, bub_color))
     bub += 1
-    #recycle list
-    if len(bub_list) >= 30:
-        del(bub_list[:10])
-        bub = 1
 
 # group a school of fish around a random coral every now and then 
 def group_around_coral(school, period, stay):
@@ -2107,6 +2102,8 @@ def automate_bubbles():
         # Drift all bubbles (in foreground)
         for bubble in bub_list:
             bubble.drift()
+            if bubble.position < ( Water.position ):
+                bub_list.remove(bubble)
 
 # remove creatures if there are too many and program is too slow
 def reduce_ecosystem(count):
