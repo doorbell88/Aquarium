@@ -2102,7 +2102,7 @@ def automate_bubbles():
         # Drift all bubbles (in foreground)
         for bubble in bub_list:
             bubble.drift()
-            if bubble.position < ( Water.position ):
+            if bubble.position[0] < ( Water.position ):
                 bub_list.remove(bubble)
 
 # remove creatures if there are too many and program is too slow
