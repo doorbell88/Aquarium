@@ -547,6 +547,7 @@ class Debris (MovingThing):
     # erase current, increment, draw new
     def move(self):
         if  self.position[0] <= ( Water.position ):
+            MovingThing.move(self)
             self.erase()
         else:
             MovingThing.move(self)
@@ -2102,7 +2103,7 @@ def automate_bubbles():
         # Drift all bubbles (in foreground)
         for bubble in bub_list:
             bubble.drift()
-            if bubble.position[0] <= ( Water.position ):
+            if bubble.position[0] <= ( Water.position - 5):
                 bub_list.remove(bubble)
 
 # remove creatures if there are too many and program is too slow
