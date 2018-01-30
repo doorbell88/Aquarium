@@ -397,7 +397,7 @@ class MovingThing(Thing):
         distance_tail_sq = (dx_tail**2) + ((dy//2)**2)
         distance_front_sq = (dx_front**2) + ((dy//2)**2)
 
-        return [dy, dx_tail, dx_front, distance_tail_sq, distance_front_sq]
+        return (dy, dx_tail, dx_front, distance_tail_sq, distance_front_sq)
 
     # Find nearest individual in a group (list)
     def findNearest(self, group, *arg):
