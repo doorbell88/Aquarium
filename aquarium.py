@@ -64,6 +64,10 @@ word_file                       = "/usr/share/dict/words"
 # print info about aquarium (can be toggled with ctrl-\)
 verbose                         = False
 
+# If set to a positive number, creatures can go outside of the "box"
+MARGIN_WATER                    = 20
+MARGIN_SAND                     = 5
+
 
 #----------------------------------- colors ------------------------------------
 all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
@@ -203,20 +207,28 @@ def speed_check_after(movement_function):
 
 def turn_around_water(movement_function):
     def wrapper(self, *args, **kwargs):
+        global MARGIN_WATER
+
+        left_wall   = 1 - MARGIN_WATER
+        right_walL  = WIDTH + MARGIN_WATER
+        top_wall    = Water.position + 1
+        bottom_waLL = HEIGHT - 1
+        
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
-            # left wall
-        if self.position[1] < (self.speed + 1):
+        # left wall
+        if self.position[1] < (self.speed + left_wall):
             self.direction[1] = 1
-            # right wall
-        if self.position[1] > (WIDTH - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
+        # right wall
+        if self.position[1] > (right_walL - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
             self.direction[1] = -1
+
         # TURN AROUND (Y)
-            # top (water)
-        if self.position[0] < ( Water.position + (self.speed + 1) ):
+        # top (water)
+        if self.position[0] < ( self.speed + top_wall ):
             self.direction[0] = 1
-            #bottom (sand)
-        if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
+        #bottom (sand)
+        if self.position[0] > (bottom_waLL - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
             self.direction[0] = -1
         #--------------------------------------------------------------------------------
         movement_function(self, *args, **kwargs)              # flee or follow
@@ -224,20 +236,28 @@ def turn_around_water(movement_function):
 
 def turn_around_sand(movement_function):
     def wrapper(self, *args, **kwargs):
+        global MARGIN_SAND
+
+        left_wall   = 1 - MARGIN_SAND
+        right_walL  = WIDTH + MARGIN_SAND
+        top_wall    = Sand.position + 1
+        bottom_waLL = HEIGHT - 1
+        
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
-            # left wall
-        if self.position[1] < (self.speed + 1):
+        # left wall
+        if self.position[1] < (self.speed + left_wall):
             self.direction[1] = 1
-            # right wall
-        if self.position[1] > (WIDTH - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
+        # right wall
+        if self.position[1] > (right_walL - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
             self.direction[1] = -1
+
         # TURN AROUND (Y)
-            # top (water)
-        if self.position[0] < ( Sand.position + (self.speed + 1) ):
+        # top (water)
+        if self.position[0] < ( self.speed + top_wall ):
             self.direction[0] = 1
-            #bottom (sand)
-        if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
+        #bottom (sand)
+        if self.position[0] > (bottom_waLL - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
             self.direction[0] = -1
         #--------------------------------------------------------------------------------
         movement_function(self, *args, **kwargs)              # flee or follow
