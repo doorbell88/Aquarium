@@ -65,7 +65,7 @@ word_file                       = "/usr/share/dict/words"
 verbose                         = False
 
 # If set to a positive number, creatures can go outside of the "box"
-MARGIN_WATER                    = 20
+MARGIN_WATER                    = 50
 MARGIN_SAND                     = 5
 
 
