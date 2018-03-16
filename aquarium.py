@@ -58,7 +58,7 @@ clock_fish                      = False
 explorer_school                 = False
 
 # Generate random word bubbles
-word_bubbles                    = False     # "bubbles" must be True to work
+word_bubbles                    = True      # "bubbles" must be True to work
 word_file                       = "/usr/share/dict/words"
 
 # print info about aquarium (can be toggled with ctrl-\)
