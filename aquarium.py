@@ -358,11 +358,9 @@ class Thing(object):
 class MovingThing(Thing):
     def __init__(self, position, color):
         self.position = position    # [y,x]
+        self.speed = 1
         self.maxspeed = 1
         self.color = color
-        # set speed initially to maxspeed
-        self.speed = 1
-        self.speed = self.maxspeed
 
         # Initiate a start direction of left or right (if direction starts as [0,0]...
         # ... then calmRandomMove objects will stay still)
@@ -1611,28 +1609,34 @@ def ocean_drift():
 
 # Create an Abstract Factory that can create schools
 class SchoolFactory(object):
-    def __init__(   self, SchoolType=Tree, SchoolSize=20,
-            SchoolCenter=[HEIGHT//2,WIDTH//2],
-                    AnimalType=SeaMonkey, FollowType='calmRandomFollow', FollowDistance=2,
-                    LeadType='randomMove', Color='red'):
-        self.SchoolType = SchoolType
-        self.SchoolSize = SchoolSize
-        self.SchoolCenter = SchoolCenter    #[y,x]
-        self.AnimalType = AnimalType
-        self.FollowType = FollowType
+    def __init__( self,
+                  SchoolType=Tree,
+                  SchoolSize=20,
+                  SchoolCenter=[HEIGHT//2,WIDTH//2],
+                  AnimalType=SeaMonkey,
+                  FollowType='calmRandomFollow',
+                  FollowDistance=2,
+                  LeadType='randomMove',
+                  Color='red' ):
+
+        self.SchoolType     = SchoolType
+        self.SchoolSize     = SchoolSize
+        self.SchoolCenter   = SchoolCenter
+        self.AnimalType     = AnimalType
+        self.FollowType     = FollowType
         self.FollowDistance = FollowDistance
-        self.LeadType = LeadType
-        self.Color = Color
+        self.LeadType       = LeadType
+        self.Color          = Color
 
     def CreateSchool(self, **kwargs):
-        self.SchoolType = kwargs.get('SchoolType', self.SchoolType)
-        self.SchoolSize = kwargs.get('SchoolSize', self.SchoolSize)
-        self.SchoolCenter = kwargs.get('SchoolCenter', self.SchoolCenter)   #[y,x]
-        self.AnimalType = kwargs.get('AnimalType', self.AnimalType)
-        self.FollowType = kwargs.get('FollowType', self.FollowType)
+        self.SchoolType     = kwargs.get('SchoolType', self.SchoolType)
+        self.SchoolSize     = kwargs.get('SchoolSize', self.SchoolSize)
+        self.SchoolCenter   = kwargs.get('SchoolCenter', self.SchoolCenter)
+        self.AnimalType     = kwargs.get('AnimalType', self.AnimalType)
+        self.FollowType     = kwargs.get('FollowType', self.FollowType)
         self.FollowDistance = kwargs.get('FollowDistance', self.FollowDistance)
-        self.LeadType = kwargs.get('LeadType', self.LeadType)
-        self.Color = kwargs.get('Color', self.Color)
+        self.LeadType       = kwargs.get('LeadType', self.LeadType)
+        self.Color          = kwargs.get('Color', self.Color)
 
         # Create list of students and instantiate
         i=0
@@ -1642,36 +1646,35 @@ class SchoolFactory(object):
         while i < self.SchoolSize:
             # Instantiate the current student
             student = \
-            self.AnimalType(    [   self.SchoolCenter[0]+((i%2)*((-1)**i)),         \
-                                    self.SchoolCenter[1]+((i%3)*((-1)**i))      ],  \
-                                self.Color)
+                self.AnimalType( [self.SchoolCenter[0]+((i%2)*((-1)**i)),
+                                  self.SchoolCenter[1]+((i%3)*((-1)**i)) ],
+                                  self.Color )
 
             # Add current student to list of students
             self.students.append(student)
             # Draw current student
-            self.students[-1].draw()
+            student.draw()
 
             # iterate
             i += 1
 
-        # For instantiating School
-        return self.SchoolType(self.students, self.LeadType, self.FollowType, self.FollowDistance)
+        # return school instance
+        return self.SchoolType( self.students, self.LeadType,
+                                self.FollowType, self.FollowDistance )
 
 # Generates random objects for start
 class Generator(object):
     def __init__(self):
-
         self.colors = creature_colors
 
         # Bounds 
-        self.left = 1
-        self.right = WIDTH - 1
-        self.top = Water.position + 1
+        self.left   = 1
+        self.right  = WIDTH - 1
+        self.top    = Water.position + 1
         self.bottom = HEIGHT - 1
 
     def generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list):
         for species in type_list:
-
             if len(n_bounds) == 2:
                 n = randint(n_bounds[0], n_bounds[1])
             else:
@@ -1695,6 +1698,7 @@ class Generator(object):
                     x = randint(pos_bounds[1][0], pos_bounds[1][1] - current_item_size[1])
                     current_item.position = [y,x]
                     gen_list.append(current_item)
+
                     # NonMovingThings won't draw themselves upon instantiation, so draw now
                     if isinstance(current_item, NonMovingThing):
                         current_item.draw()
@@ -1709,27 +1713,27 @@ class SeafloorGenerator(Generator):
     def __init__(self):
         Generator.__init__(self)
         self.colors = coral_colors
-        self.left = -7
-        self.right = WIDTH + 7
+        self.left   = -7
+        self.right  = WIDTH + 7
         self.bottom = HEIGHT + 1
-        self.top = Sand.position + 1
+        self.top    = Sand.position + 1
 
-        self.dune_list = [SmallDune, BigDune, HugeDune, SlopedDune, SlantedDune]
+        self.dune_list  = [SmallDune, BigDune, HugeDune, SlopedDune, SlantedDune]
         self.coral_list = [TreeCoral, BrainCoral]
-        self.kelp_list = [Kelp, LongKelp]
+        self.kelp_list  = [Kelp, LongKelp]
 
 # Good for generating fish and whales
 class EcosystemGenerator(Generator):
     def __init__(self):
         Generator.__init__(self)
         self.colors = creature_colors
-        self.left = 1
-        self.right = WIDTH - 1
+        self.left   = 1
+        self.right  = WIDTH - 1
         self.bottom = HEIGHT - 1
-        self.top = Water.position + 1
+        self.top    = Water.position + 1
 
-        self.fish_list = [SeaMonkey, Minnow, AngelFish, Tuna, Barracuda]
-        self.whale_list = [Whale, BabyWhale]
+        self.fish_list   = [SeaMonkey, Minnow, AngelFish, Tuna, Barracuda]
+        self.whale_list  = [Whale, BabyWhale]
         self.bottom_list = [Snail, SeaUrchin]
 
 #------------------------------ LAYER GENERATORS -------------------------------
@@ -1743,12 +1747,20 @@ def generate_background():
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
     ############################################################################
     BG_Dunes = []
-    SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [HEIGHT*2//3, HEIGHT-1], [SF.left, SF.right] ], \
-                    [background_dunes], [sand_color], BG_Dunes)
+    SF.generate( type_list=[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune],
+                 pos_bounds=[ (HEIGHT*2//3, HEIGHT-1),
+                              (SF.left, SF.right) ],
+                 n_bounds=[background_dunes],
+                 color_list=[sand_color],
+                 gen_list=BG_Dunes )
 
     BG_Kelp = []
-    SF.generate(    [Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-                    [background_kelp], [kelp_color], BG_Kelp)
+    SF.generate( type_list=[Kelp],
+                 pos_bounds=[ (SF.top-12, SF.bottom-10),
+                              (2, WIDTH-2) ],
+                 n_bounds=[background_kelp],
+                 color_list=[kelp_color],
+                 gen_list=BG_Kelp )
 
     #---------------------------------------------------------------------------
     if underwater_hill == True:
@@ -1759,18 +1771,26 @@ def generate_background():
         hill_right    = hill_position + hill_spread
         hill_y_bounds = [randint(HEIGHT*1//3,Sand.position), Sand.position]
         hill_x_bounds = [hill_left, hill_right]
-        hill_number   = ( (hill_y_bounds[1]-hill_y_bounds[0]) * hill_spread ) // 500
+        hill_number   = ((hill_y_bounds[1]-hill_y_bounds[0])*hill_spread) // 500
 
-        SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], \
-                        [ hill_y_bounds , hill_x_bounds ], \
-                        [0*hill_number,3*hill_number], [sand_color], BG_Dunes)
+        SF.generate( type_list=[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune],
+                     pos_bounds=[ hill_y_bounds , hill_x_bounds ],
+                     n_bounds=[0*hill_number , 3*hill_number],
+                     color_list=[sand_color],
+                     gen_list=BG_Dunes )
 
-        SF.generate(    [Kelp], \
-                        [ [hill_y_bounds[0]-12, hill_y_bounds[1]-12] , hill_x_bounds ], \
-                        [hill_kelp], [kelp_color], BG_Kelp)
-        SF.generate(    [TreeCoral], \
-                        [ hill_y_bounds , hill_x_bounds ], \
-                        [hill_coral], coral_colors, BG_Kelp)
+        SF.generate( type_list=[Kelp],
+                     pos_bounds=[ (hill_y_bounds[0]-12, hill_y_bounds[1]-12),
+                                  hill_x_bounds ],
+                     n_bounds=[hill_kelp],
+                     color_list=[kelp_color],
+                     gen_list=BG_Kelp )
+
+        SF.generate( type_list=[TreeCoral],
+                     pos_bounds=[ hill_y_bounds , hill_x_bounds ],
+                     n_bounds=[hill_coral],
+                     color_list=coral_colors,
+                     gen_list=BG_Kelp )
     #---------------------------------------------------------------------------
 
     # creat a consolidated list of Background objects
@@ -1792,20 +1812,36 @@ def generate_midground():
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
     ############################################################################
     MG_Dunes = []
-    SF.generate(    [SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune], [ [Sand.position-3, HEIGHT-1], [SF.left, SF.right] ], \
-                    [midground_dunes], [sand_color], MG_Dunes)
+    SF.generate( type_list=[SmallDune,BigDune,HugeDune,SlopedDune,SlantedDune],
+                 pos_bounds=[ (Sand.position-3, HEIGHT-1),
+                              (SF.left, SF.right) ],
+                 n_bounds=[midground_dunes],
+                 color_list=[sand_color],
+                 gen_list=MG_Dunes )
 
     MG_TreeCoral = []
-    SF.generate(    [TreeCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-                    [midground_tree_coral], coral_colors, MG_TreeCoral)
+    SF.generate( type_list=[TreeCoral],
+                 pos_bounds=[ (SF.top, SF.bottom),
+                              (SF.left, SF.right) ],
+                 n_bounds=[midground_tree_coral],
+                 color_list=coral_colors,
+                 gen_list=MG_TreeCoral )
 
     MG_BrainCoral = []
-    SF.generate(    [BrainCoral], [ [SF.top, SF.bottom], [SF.left, SF.right] ], \
-                    [midground_brain_coral], coral_colors, MG_BrainCoral)
+    SF.generate( type_list=[BrainCoral],
+                 pos_bounds=[ (SF.top, SF.bottom),
+                              (SF.left, SF.right) ],
+                 n_bounds=[midground_brain_coral],
+                 color_list=coral_colors,
+                 gen_list=MG_BrainCoral )
 
     MG_Kelp = []
-    SF.generate(    [Kelp], [ [SF.top-12, SF.bottom-10], [2, WIDTH-2] ], \
-                    [midground_kelp], [kelp_color], MG_Kelp)
+    SF.generate( type_list=[Kelp],
+                 pos_bounds=[ (SF.top-12, SF.bottom-10),
+                              (2, WIDTH-2) ],
+                 n_bounds=[midground_kelp],
+                 color_list=[kelp_color],
+                 gen_list=MG_Kelp )
 
     # creat a consolidated list of Background objects
     MG_List = MG_Dunes + MG_TreeCoral + MG_BrainCoral + MG_Kelp
@@ -1824,12 +1860,20 @@ def generate_foreground():
     # generate(self, type_list, pos_bounds, n_bounds, color_list, gen_list)
     ############################################################################
     FG_Kelp = []
-    SF.generate(    [LongKelp], [ [Water.position+1, HEIGHT*2//3], [2, WIDTH-2] ], \
-                    [0*scale,3*scale], [kelp_color], FG_Kelp)
+    SF.generate( type_list=[LongKelp],
+                 pos_bounds=[ (Water.position+1, HEIGHT*2//3),
+                              (2, WIDTH-2) ],
+                 n_bounds=[0*scale, 3*scale],
+                 color_list=[kelp_color],
+                 gen_list=FG_Kelp)
 
     FG_Dunes = []
-    SF.generate(    [HugeDune,SlopedDune,SlantedDune], [ [HEIGHT-6, HEIGHT-2], [SF.left, SF.right] ], \
-                    [0*scale,2*scale], [sand_color], FG_Dunes)
+    SF.generate( type_list=[HugeDune,SlopedDune,SlantedDune],
+                 pos_bounds=[ (HEIGHT-6, HEIGHT-2),
+                              (SF.left, SF.right) ],
+                 n_bounds=[0*scale,2*scale],
+                 color_list=[sand_color],
+                 gen_list=FG_Dunes )
 
     # creat a consolidated list of Background objects
     FG_List = FG_Kelp + FG_Dunes 
@@ -1857,20 +1901,20 @@ def generate_ecosystem():
     #-------------------------------------------------------------------------------
     # Eco_Fishies
     Eco_Tuna = []
-    Eco.generate(   [Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                    [number_of_tuna], Eco.colors, Eco_Tuna)
+    Eco.generate( [Tuna], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                  [number_of_tuna], Eco.colors, Eco_Tuna)
 
     Eco_AngelFish = []
-    Eco.generate(   [AngelFish], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                    [number_of_angelfish], Eco.colors, Eco_AngelFish)
+    Eco.generate( [AngelFish], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                  [number_of_angelfish], Eco.colors, Eco_AngelFish)
 
     Eco_Minnows = []
-    Eco.generate(   [Minnow], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                    [number_of_minnows], Eco.colors, Eco_Minnows)
+    Eco.generate( [Minnow], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                  [number_of_minnows], Eco.colors, Eco_Minnows)
 
     Eco_SeaMonkeys = []
-    Eco.generate(   [SeaMonkey], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                    [number_of_seamonkeys], Eco.colors, Eco_SeaMonkeys)
+    Eco.generate( [SeaMonkey], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                  [number_of_seamonkeys], Eco.colors, Eco_SeaMonkeys)
 
     # consolidate all fishies into one list
     Eco_Fishies = Eco_Tuna + Eco_AngelFish + Eco_Minnows + Eco_SeaMonkeys
@@ -1879,12 +1923,12 @@ def generate_ecosystem():
     # Eco_Barracuda
     Eco_Barracuda = []
     if WIDTH > 30:
-        Eco.generate(   [Barracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [number_of_barracudas], Eco.colors, Eco_Barracuda)
+        Eco.generate( [Barracuda], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                      [number_of_barracudas], Eco.colors, Eco_Barracuda)
 
     if clock_fish == True:
-        Eco.generate(   [Clock], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [1,1], clock_fish_colors, Eco_Barracuda)
+        Eco.generate( [Clock], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                      [1,1], clock_fish_colors, Eco_Barracuda)
 
     #-------------------------------------------------------------------------------
     # Eco_Whales
@@ -1892,11 +1936,11 @@ def generate_ecosystem():
     Eco_BabyWhales = []
     Eco_BabyWhaleFollower = []
     if WIDTH > 45:
-        Eco.generate(   [Whale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [number_of_whales], whale_colors, Eco_Whales)
+        Eco.generate( [Whale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                      [number_of_whales], whale_colors, Eco_Whales)
 
-        Eco.generate(   [BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ], \
-                        [number_of_baby_whales], whale_colors, Eco_BabyWhales)
+        Eco.generate( [BabyWhale], [ [Eco.top, Eco.bottom], [Eco.left, Eco.right] ],
+                      [number_of_baby_whales], whale_colors, Eco_BabyWhales)
 
         # For making a baby whale follow its mother
         if len(Eco_Whales) == 2:
@@ -1912,7 +1956,7 @@ def generate_ecosystem():
     #-------------------------------------------------------------------------------
     # Eco_Jellyfish
     Eco_Jellyfish = []
-    Eco.generate(   [Jellyfish], [ [Eco.top, (Eco.bottom-Eco.top)//2], [SF.left, SF.right] ], \
+    Eco.generate(   [Jellyfish], [ [Eco.top, (Eco.bottom-Eco.top)//2], [SF.left, SF.right] ],
                     [number_of_jellyfish], jellyfish_colors, Eco_Jellyfish)
 
 
@@ -1920,16 +1964,16 @@ def generate_ecosystem():
     # Eco_BottomFeeders
 
     Eco_Snails = []
-    Eco.generate(   [Snail], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_snails], snail_colors, Eco_Snails)
+    Eco.generate( [Snail], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ],
+                  [number_of_snails], snail_colors, Eco_Snails)
 
     Eco_SeaUrchins = []
-    Eco.generate(   [SeaUrchin], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_sea_urchins], sea_urchin_colors, Eco_SeaUrchins)
+    Eco.generate( [SeaUrchin], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ],
+                  [number_of_sea_urchins], sea_urchin_colors, Eco_SeaUrchins)
 
     Eco_Lobsters = []
-    Eco.generate(   [Lobster], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ], \
-                    [number_of_lobsters], lobster_colors, Eco_Lobsters)
+    Eco.generate( [Lobster], [ [Sand.position+1, HEIGHT-1], [SF.left, SF.right] ],
+                  [number_of_lobsters], lobster_colors, Eco_Lobsters)
 
     # consolidate all bottomfeeders into one list
     Eco_BottomFeeders = Eco_Snails + Eco_SeaUrchins + Eco_Lobsters
@@ -1965,7 +2009,6 @@ def generate_all_schools():
 
     sea_monkey_schools = []
     minnow_schools = []
-    schools = sea_monkey_schools + minnow_schools
 
     #School_Types = [Monarch, Tree, Line, Circle, Neighbor, ShyNeighbor]
     School_Types  = []
@@ -1978,15 +2021,15 @@ def generate_all_schools():
     if len(School_Types) == 0:
         return
 
-    School_Colors = fish_school_colors
-    Follow_Types = ['calmRandomFollow', 'randomFollow']
-    Lead_Types = ['calmRandomMove', 'randomMove']
-    School_Centers = [  [HEIGHT*1//3,WIDTH*1//7],
-                        [HEIGHT*1//3,WIDTH*5//7],
-                        [HEIGHT*1//2,WIDTH*1//7],
-                        [HEIGHT*1//2,WIDTH*5//7],
-                        [HEIGHT*2//3,WIDTH*1//7],
-                        [HEIGHT*2//3,WIDTH*5//7]]
+    School_Colors  = fish_school_colors
+    Follow_Types   = ['calmRandomFollow', 'randomFollow']
+    Lead_Types     = ['calmRandomMove', 'randomMove']
+    School_Centers = [ [HEIGHT*1//3,WIDTH*1//7],
+                       [HEIGHT*1//3,WIDTH*5//7],
+                       [HEIGHT*1//2,WIDTH*1//7],
+                       [HEIGHT*1//2,WIDTH*5//7],
+                       [HEIGHT*2//3,WIDTH*1//7],
+                       [HEIGHT*2//3,WIDTH*5//7] ]
 
     # --- SEA MONKEYS! ---#
     #number_of_sea_monkey_schools = 3
@@ -2000,7 +2043,10 @@ def generate_all_schools():
 
     sea_monkey_schools = []
     SeaMonkeyFactory = SchoolFactory(AnimalType=SeaMonkey)
-    generate_schools(number_of_sea_monkey_schools, SeaMonkeyFactory, sea_monkey_schools, fps_min,fps_max )
+    generate_schools( number_of_sea_monkey_schools, 
+                      SeaMonkeyFactory,
+                      sea_monkey_schools,
+                      fps_min,fps_max )
 
 
     # --- MINNOWS! --- #
@@ -2012,7 +2058,10 @@ def generate_all_schools():
 
     minnow_schools = []
     MinnowFactory = SchoolFactory(AnimalType=Minnow, LeadType='calmRandomMove')
-    generate_schools(number_of_minnow_schools, MinnowFactory, minnow_schools, fps_min,fps_max )
+    generate_schools( number_of_minnow_schools,
+                      MinnowFactory,
+                      minnow_schools,
+                      fps_min,fps_max )
 
     schools = sea_monkey_schools + minnow_schools
 
@@ -2128,9 +2177,8 @@ def automate_bubbles():
 
 # remove creatures if there are too many and program is too slow
 def reduce_ecosystem(count):
-    ratio = 5       # ratio goal for seamonkeys / minnows
-    #subprocess.call(['tput', 'cup', '0', '0'])
-    #print "reducing..."
+    # Target ratio for seamonkeys / minnows
+    ratio = 5
 
     #---------------------------------------------------------------------------
     # if there are no fish to remove, don't attempt to
@@ -2270,11 +2318,6 @@ Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
 generate_ecosystem()
 generate_all_schools()
 
-
-################################################################################
-##################################### LOOP #####################################
-                                     
-
 # initial bubble list
 bub = 1
 bub_list = []
@@ -2291,6 +2334,9 @@ coral_list = BG_Kelp + MG_Kelp + FG_Kelp + MG_BrainCoral + MG_TreeCoral
 # Hide the cursor
 os.system('echo -ne "\x1b[?25l"')
 
+
+################################################################################
+##################################### LOOP #####################################
 while True:
     # ocean currents move all the swimmers
     if periodic_ocean_current_drift == True:
@@ -2301,7 +2347,7 @@ while True:
     t_b = time()
 
 
-    #----------------------------- MIDGROUND -----------------------------------
+    #============================= MIDGROUND ===================================
     # draw midground layer
     SF.DrawList(MG_List)
 
@@ -2330,7 +2376,7 @@ while True:
         creature.draw()
 
 
-    #------------------------- ACTIVE FOREGROUND -------------------------------
+    #========================= ACTIVE FOREGROUND ===============================
     automate_bubbles()
 
     # Draw long kelp in the front
@@ -2339,7 +2385,7 @@ while True:
     SF.DrawList(FG_Kelp[scale:])
 
 
-    #-------------------------- DISPLAY AQUARIUM -------------------------------
+    #========================== DISPLAY AQUARIUM ===============================
     # Wait to display aquarium
     while (t_b - t_a) < DELAY:
         t_b = time()
@@ -2351,7 +2397,7 @@ while True:
         debug_printout()
 
 
-    #-------------------------- REDUCE ECOSYSTEM -------------------------------
+    #========================== REDUCE ECOSYSTEM ===============================
     if reduce_clock < 20:
         #-----------------------------------------------------------------------
         # if it's taking too much time before each refesh, remove some of the fish
