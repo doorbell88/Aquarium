@@ -31,8 +31,7 @@ def randint(a,b):
 # get size of terminal
 WIDTH  = int( subprocess.check_output(['tput','cols']) )
 HEIGHT = int( subprocess.check_output(['tput','lines']) ) - 1
-# volume scale (for how much stuff can fit in the terminal size)
-volume  = WIDTH * HEIGHT
+VOLUME = WIDTH * HEIGHT
 
 
 #================================= CUSTOMIZE ===================================
@@ -116,14 +115,14 @@ bubble_frequency                = 30     # (higher number means less frequent)
 all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 #...............................................................................
 school_types                    = all_school_types
-max_fish                        = volume // 100
+max_fish                        = VOLUME // 100
 min_fish_per_school             = 5
 number_of_sea_monkey_schools    = randint( 2 , 8 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
-number_of_whales                = randint( 0 , 1 ) if volume > 1500 else 0
-number_of_baby_whales           = randint( 0 , 1 ) if volume > 1000 else 0
-number_of_barracudas            = randint( 0 , 1 ) if volume > 800  else 0
+number_of_whales                = randint( 0 , 1 ) if VOLUME > 1500 else 0
+number_of_baby_whales           = randint( 0 , 1 ) if VOLUME > 1000 else 0
+number_of_barracudas            = randint( 0 , 1 ) if VOLUME > 800  else 0
 number_of_tuna                  = randint( 2 , 4 )
 number_of_angelfish             = randint( 2 , 4 )
 number_of_minnows               = randint( 0 , 4 )
@@ -173,47 +172,36 @@ def debug_printout():
         print("{:12}  {:4}  {}".format( school.__class__.__name__, 
                                         len(school.students),
                                         color,
-                                        school.following_order,
-                                      )
-             )
+                                        school.following_order, ))
 
 #---------------------------- FUNCTION DECORATORS ------------------------------
 
 def speed_check_before(movement_function):
     def wrapper(self, *args, **kwargs):
-
         # keep speed from exploding
         if self.speed >= self.maxspeed:
             self.speed = self.maxspeed
         if self.speed < 0:
             self.speed = 0
-
-        movement_function(self, *args, **kwargs)              # flee or follow
-
+        movement_function(self, *args, **kwargs)    # flee or follow
     return wrapper
 
 def speed_check_after(movement_function):
     def wrapper(self, *args, **kwargs):
-
-        movement_function(self, *args, **kwargs)              # flee or follow
-
+        movement_function(self, *args, **kwargs)    # flee or follow
         # keep speed from exploding
         if self.speed >= self.maxspeed:
             self.speed = self.maxspeed
         if self.speed < 0:
             self.speed = 0
-
     return wrapper
 
 def turn_around_water(movement_function):
     def wrapper(self, *args, **kwargs):
-        global MARGIN_WATER
-
         left_wall   = 1 - MARGIN_WATER
         right_walL  = WIDTH + MARGIN_WATER
         top_wall    = Water.position + 1
         bottom_waLL = HEIGHT - 1
-        
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
         # left wall
@@ -222,7 +210,7 @@ def turn_around_water(movement_function):
         # right wall
         if self.position[1] > (right_walL - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
             self.direction[1] = -1
-
+        #--------------------------------------------------------------------------------
         # TURN AROUND (Y)
         # top (water)
         if self.position[0] < ( self.speed + top_wall ):
@@ -236,13 +224,10 @@ def turn_around_water(movement_function):
 
 def turn_around_sand(movement_function):
     def wrapper(self, *args, **kwargs):
-        global MARGIN_SAND
-
         left_wall   = 1 - MARGIN_SAND
         right_walL  = WIDTH + MARGIN_SAND
         top_wall    = Sand.position + 1
         bottom_waLL = HEIGHT - 1
-        
         #--------------------------------------------------------------------------------
         # TURN AROUND (X)
         # left wall
@@ -251,7 +236,7 @@ def turn_around_sand(movement_function):
         # right wall
         if self.position[1] > (right_walL - (int(self.direction[1] * self.speed) + self.size[1] + 1) ):
             self.direction[1] = -1
-
+        #--------------------------------------------------------------------------------
         # TURN AROUND (Y)
         # top (water)
         if self.position[0] < ( self.speed + top_wall ):
@@ -274,35 +259,39 @@ class Window(object):
         self.width = WIDTH
         self.height = HEIGHT
 
-        self.aquarium_box = []
-        self.aquarium_box_background = []
+        # create lists for "screen"
+        self.stage = []
+        self.background = []
 
         # clear screen
         os.system('clear')
 
         # create blank aquarium box
         for y in range(self.height):
-            self.aquarium_box.append([" "] * self.width)
+            self.stage.append([" "] * self.width)
 
         #draw aquarium border
         for y in range(0, self.height):
             for x in range(0, self.width):
                 #top
-                self.aquarium_box[0][x] = colored( "=", self.border_color )
+                self.stage[0][x] = \
+                        colored( "=", self.border_color )
                 #bottom
-                self.aquarium_box[self.height - 1][x] = colored( "=", self.border_color )
+                self.stage[self.height-1][x] = \
+                        colored( "=", self.border_color )
                 #left
-                self.aquarium_box[y][0] = colored( "|", self.border_color )
+                self.stage[y][0] = \
+                        colored( "|", self.border_color )
                 #right
-                self.aquarium_box[y][self.width - 1] = colored( "|", self.border_color )
+                self.stage[y][self.width-1] = \
+                        colored( "|", self.border_color )
 
     def display(self):
-        # Clear screen and scrollback buffer
-        #os.system("clear && printf '\e[3J' ")
+        # Move cursor back to top left
         os.system('tput cup 0 0')
         # print
-        for row in range( len(self.aquarium_box) ):
-            print("".join(self.aquarium_box[row]))
+        for row in range( len(self.stage) ):
+            print("".join(self.stage[row]))
 
 # Things that can be drawn in the aquarium
 class Thing(object):
@@ -337,7 +326,8 @@ class Thing(object):
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) and \
                     self.picture[y][x] != " " :          # Avoids drawing a blank box around thing
-                        Aquarium.aquarium_box[ int(y + self.position[0]) ][ int(x + self.position[1]) ] \
+                        Aquarium.stage[ int(y + self.position[0]) ]\
+                                      [ int(x + self.position[1]) ] \
                         = colored(self.picture[y][x], self.color)
 
     # Remove object (for when it's moving)
@@ -349,8 +339,10 @@ class Thing(object):
                     y + self.position[0] < (HEIGHT-1) and \
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) :
-                        Aquarium.aquarium_box[ int(y + self.position[0]) ][ int(x + self.position[1]) ] \
-                        = Aquarium.aquarium_box_background [ int(y + self.position[0]) ][ int(x + self.position[1]) ]
+                        Aquarium.stage[ int(y + self.position[0]) ]\
+                                      [ int(x + self.position[1]) ] \
+                        = Aquarium.background[ int(y + self.position[0]) ]\
+                                             [ int(x + self.position[1]) ]
 
 #------------------------------- MOVING THINGS ---------------------------------
 
@@ -561,10 +553,10 @@ class MovingThing(Thing):
         self.calmRandomMove()
 
 # Debris that drifts (like bubbles, sinkers, etc.)
-class Debris (MovingThing):
+class Debris(MovingThing):
     # erase current, increment, draw new
     def move(self):
-        if  self.position[0] <= ( Water.position ):
+        if self.position[0] <= ( Water.position ):
             MovingThing.move(self)
             self.erase()
         else:
@@ -771,7 +763,8 @@ class Jellyfish(MovingThing):
                 if self.position[0] < ( Water.position + (self.speed + 1) ):
                     self.direction[0] = 1
                     #bottom (sand)
-                if self.position[0] > ((HEIGHT-1) - (int(self.direction[0] * self.speed) + self.size[0] + 1) ):
+                if self.position[0] > ( (HEIGHT-1) - \
+                        (int(self.direction[0]*self.speed)+self.size[0]+1) ):
                     self.direction[0] = -1
                 #---------------------------------------------------------------
             else:
@@ -1057,7 +1050,7 @@ class Surface(object):
         x = 1
         y = int(self.position)
         while x < (WIDTH - 1):
-            Aquarium.aquarium_box[y][x] = colored( '~', self.color)
+            Aquarium.stage[y][x] = colored( '~', self.color)
             x += 1
 
     #draw fill under line
@@ -1067,9 +1060,9 @@ class Surface(object):
         y = int(self.position + 1)
         while y < (HEIGHT - 1):
             while x < (WIDTH - 2):
-                Aquarium.aquarium_box[y][x] = colored( ',', self.color)
+                Aquarium.stage[y][x] = colored( ',', self.color)
                 x += (HEIGHT - self.position) // (y - self.position)  #1
-                #Aquarium.aquarium_box[y][x] = ' '
+                #Aquarium.stage[y][x] = ' '
                 x += 1   #1
             #x = (y % 2) + 1
             x = randint(1, 3)
@@ -1082,7 +1075,7 @@ class Surface(object):
         y = 1
         while y < (self.position):
             while x < (WIDTH - 1):
-                Aquarium.aquarium_box[y][x] = colored( '-', self.color)
+                Aquarium.stage[y][x] = colored( '-', self.color)
                 x += 6
             x = 3*(y % 2) + 1
             y += 1
@@ -1101,7 +1094,7 @@ class Dune(NonMovingThing):
                     x + self.position[1] > 1 and \
                     x + self.position[1] < (WIDTH-1) :
                     if self.picture[y][x] != 'R':        # edges of dune drawing should be ommitted
-                        Aquarium.aquarium_box[ y + self.position[0] ][ x + self.position[1] ] \
+                        Aquarium.stage[ y + self.position[0] ][ x + self.position[1] ] \
                         = colored(self.picture[y][x], self.color)
 
 # Dunes
@@ -1322,9 +1315,9 @@ class LongKelp(NonMovingThing):
 # School class
 class School(object):
     def __init__(self, students, LeadType, FollowType, FollowDistance):
-        self.students = students
-        self.LeadType = LeadType
-        self.FollowType = FollowType
+        self.students       = students
+        self.LeadType       = LeadType
+        self.FollowType     = FollowType
         self.FollowDistance = FollowDistance
 
         self.createFollowingOrder()
@@ -1346,7 +1339,6 @@ class School(object):
     # Automate the following heirarchy (during each loop)
     def automate(self):
         for student in range( len(self.students) ):
-
             current_student = self.students[student]
             current_leader  = self.following_order[student]
             distance        = self.FollowDistance
@@ -2311,7 +2303,7 @@ generate_foreground()
 remove_peripherals(BG_List, MG_List, FG_List)
 
 #set eveything so far as the background environment
-Aquarium.aquarium_box_background = deepcopy(Aquarium.aquarium_box)
+Aquarium.background = deepcopy(Aquarium.stage)
 
 
 #------------------------------ CREATE ECOSYSTEM -------------------------------
