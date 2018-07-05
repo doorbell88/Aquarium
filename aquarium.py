@@ -362,6 +362,14 @@ class MovingThing(Thing):
         self.size = [0,0]
         self.picture = ['']
 
+        # get left and right images
+        try:
+            self.left_image = self._left()
+            self.right_image = self._right()
+        except AttributeError:
+            self.left_image = self.left()
+            self.right_imate = self.right()
+
     # Move object
     def move(self):
         # Erase current, increment, draw new
@@ -617,10 +625,14 @@ class Minnow(Fish):
         self.maxspeed = 2
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return  (
         '<',
         )
-    def right(self):
+    def _right(self):
         return  (
         '>',
         )
@@ -632,10 +644,14 @@ class AngelFish(Fish):
         self.maxspeed = 1
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return  (
         '<(',
         )
-    def right(self):
+    def _right(self):
         return  (
         ')>',
         )
@@ -647,10 +663,14 @@ class Tuna(Fish):
         self.maxspeed = 2
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return  (
         '<=(',
         )
-    def right(self):
+    def _right(self):
         return  (
         ')=>',
         )
@@ -662,11 +682,15 @@ class Barracuda(Fish):
         self.maxspeed = 2
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return  (
         '<==^=-<',
         )
 
-    def right(self):
+    def _right(self):
         return  (
         '>-=^==>',
         )
@@ -688,15 +712,7 @@ class Clock(Fish):
         '{}:{:02d} {}'.format(hour, minute, ampm),
         )
     def right(self):
-        now         = datetime.now()
-        day         = now.day
-        hour        = int(now.strftime('%I'))
-        minute      = now.minute
-        second      = now.second
-        ampm        = now.strftime('%p').lower()
-        return  (
-        '{}:{:02d} {}'.format(hour, minute, ampm),
-        )
+        return self.left()
 
 # Whale
 class Whale(Fish):
@@ -705,13 +721,17 @@ class Whale(Fish):
         self.maxspeed = 1
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return (                            
         ' _--.-^---_____/',
         '(__`______===== ',
         '    V          \\'               
         )
 
-    def right(self):
+    def _right(self):
         return (                            
         '\\_____---^-.--_ ',
         ' =====______`__)',
@@ -725,12 +745,16 @@ class BabyWhale(Fish):
         self.maxspeed = 1
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return (                            
         ' ________/',
         '(__`u_===\\'     
         )
 
-    def right(self):
+    def _right(self):
         return (                            
         '\\________ ',
         '/===_u`__)'              
@@ -739,9 +763,6 @@ class BabyWhale(Fish):
 # Jellyfish
 class Jellyfish(MovingThing):
     def __init__(self, position, color):
-        MovingThing.__init__(self, position, color)
-        self.speed    = 1
-        self.maxspeed = 1
         # each jellyfish swims a little differently
         self.bell_0 = randint(6, 10)
         self.bell_1 = self.bell_0 + randint(1,3)
@@ -749,6 +770,10 @@ class Jellyfish(MovingThing):
         self.bell_3 = self.bell_2 + randint(1,3)
         # start each jellyfish at a different part of the "stroke"
         self.bell = randint(0, self.bell_3)
+
+        MovingThing.__init__(self, position, color)
+        self.speed    = 1
+        self.maxspeed = 1
 
     @turn_around_water
     def move(self):
@@ -842,10 +867,14 @@ class Snail(BottomFeeder):
         self.maxspeed = 1
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return  (
         '@',
         )
-    def right(self):
+    def _right(self):
         return  (
         '@',
         )
@@ -857,13 +886,17 @@ class SeaUrchin(BottomFeeder):
         self.maxspeed = 1
 
     def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
+    def _left(self):
         return (                            
         '  .w.  ',
         '_\ | /_',
         '> ,*, <'     
         )
 
-    def right(self):
+    def _right(self):
         return (                            
         '  .v.  ',
         '_\ | /_',
@@ -923,13 +956,6 @@ class Bubble(Debris):
     def __init__(self, position, color):
         global word_bubbles
 
-        self.maxspeed = 1
-
-        Debris.__init__(self, position, color)
-        self.position = position
-        self.color = color
-        self.direction = [-1,0]     # float up
-
         now              = datetime.now()
         self.year        = now.year
         self.month       = now.month
@@ -955,8 +981,15 @@ class Bubble(Debris):
         if word_bubbles == True:
             self_images.append([self._words, self._words])
 
-
         self.left, self.right = choice(self_images)
+
+        Debris.__init__(self, position, color)
+
+        self.maxspeed = 1
+        self.position = position
+        self.color = color
+        self.direction = [-1,0]     # float up
+
 
     # First set of bubble images
     def _left1(self):
@@ -1031,6 +1064,7 @@ class NonMovingThing(Thing):
         self.picture = ['']
 
         # self.draw()
+        self.getPicture()
 
     # Get the picture of the object in question, and assign LEFT or RIGHT picture
     def getPicture(self):
@@ -1086,7 +1120,7 @@ class Surface(object):
 class Dune(NonMovingThing):
     # Draw the object, but omit the blank areas on the sides (which would create a blank box)
     def draw(self):
-        self.getPicture()
+        # self.getPicture()
         for y in range( self.size[0] ):
             for x in range( self.size[1] ):
                 if  y + self.position[0] > 1 and \
@@ -1156,15 +1190,15 @@ class SlantedDune(Dune):
 # Corals
 class TreeCoral(NonMovingThing):
     def __init__(self, position, color):
-        NonMovingThing.__init__(self, position, color)
-
-        self.position = position
-        self.color = color
-        
         self.image = choice([
                             self._image1,
                             self._image2,
                            ])
+
+        NonMovingThing.__init__(self, position, color)
+
+        self.position = position
+        self.color = color
         
     def _image1(self):
         return (                            
