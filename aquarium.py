@@ -312,9 +312,24 @@ class Thing(object):
             self.picture = self.right()
         # Get size of the object's picture
         try:
+            # self.size = [ len(self.colored_picture), len(self.colored_picture[0]) ]
             self.size = [ len(self.picture), len(self.picture[0]) ]
         except:
             self.size = [0,0]
+
+    def _colorPicture(self, picture, color):
+        # self.getPicture()
+        size = [ len(picture), len(picture[0]) ]
+        colored_picture = []
+        for y in range( size[0] ):
+            colored_row = []
+            for x in range( size[1] ):
+                if picture[y][x] == " ":
+                    colored_row.append(" ")
+                else:
+                    colored_row.append(colored(picture[y][x], color))
+            colored_picture.append( tuple(colored_row) )
+        return tuple(colored_picture)
 
     # Draw the object
     def draw(self):
@@ -328,7 +343,9 @@ class Thing(object):
                     self.picture[y][x] != " " :          # Avoids drawing a blank box around thing
                         Aquarium.stage[ int(y + self.position[0]) ]\
                                       [ int(x + self.position[1]) ] \
-                        = colored(self.picture[y][x], self.color)
+                        = self.picture[y][x]
+                        # = self.colored_picture[y][x]
+                        # = colored(self.picture[y][x], self.color)
 
     # Remove object (for when it's moving)
     def erase(self):
@@ -361,14 +378,18 @@ class MovingThing(Thing):
         # Initial null values for each object, so that it can be drawn the first time
         self.size = [0,0]
         self.picture = ['']
+        self.left_image = [['']]
+        self.right_image = [['']]
 
         # get left and right images
-        try:
-            self.left_image = self._left()
-            self.right_image = self._right()
-        except AttributeError:
-            self.left_image = self.left()
-            self.right_imate = self.right()
+        # try:
+        #     self.left_image  = self._colorPicture(self.LEFT)
+        #     self.right_image = self._colorPicture(self.RIGHT)
+        # except AttributeError:
+        #     self.left_image  = self._colorPicture(self.left())
+        #     self.right_image = self._colorPicture(self.right())
+        # except AttributeError:
+        #     pass
 
     # Move object
     def move(self):
@@ -593,107 +614,114 @@ class BottomFeeder(MovingThing):
 
 # Fish (smallest)
 class SeaMonkey(Fish):
+    LEFT_UP    = ('`',)
+    LEFT_DOWN  = (',',)
+    LEVEL      = ('-',)
+    VERTICAL   = ('\'',)
+    RIGHT_UP   = LEFT_DOWN
+    RIGHT_DOWN = LEFT_UP
+
     def __init___(self, position, color):
+        self.level      = self._colorPicture(SELF.LEVEL, color)
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
     
+        self.left_up    = self._colorPicture(SELF.LEFT_UP, color)
+        self.left_down  = self._colorPicture(SELF.LEFT_DOWN, color)
+        self.level      = self._colorPicture(SELF.LEVEL, color)
+        self.vertical   = self._colorPicture(SELF.VERTICAL, color)
+        self.right_up   = self.left_down
+        self.right_down = self.left_up
+
     def left(self):
         if self.direction[0] < 0:
-            return  ('`',)
+            return self.left_up
         elif self.direction[0] > 0:
-            return  (',',)
+            return self.left_down
         else:
-            return  ('-',)
+            return self.level
     def right(self):
         if self.direction[1] == 0:
             if self.direction[0] == 0:
-                return  ('-',)
+                return self.level
             else:
-                return  ('\'',)
+                return self.vertical
         else:
             if self.direction[0] < 0:
-                return  (',',)
+                return self.right_up
             elif self.direction[0] > 0:
-                return  ('`',)
+                return self.right_down
             else:
-                return  ('-',)
+                return self.level
+
 
 # Fish (small)
 class Minnow(Fish):
+    LEFT  = ('<',)
+    RIGHT = ('>',)
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return  (
-        '<',
-        )
-    def _right(self):
-        return  (
-        '>',
-        )
 
 # Fish (medium)
 class AngelFish(Fish):
+    LEFT  = ('<(',)
+    RIGHT = (')>',)
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
+
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return  (
-        '<(',
-        )
-    def _right(self):
-        return  (
-        ')>',
-        )
 
 # Fish (large)
 class Tuna(Fish):
+    LEFT  = ('<=(',)
+    RIGHT = (')=>',)
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return  (
-        '<=(',
-        )
-    def _right(self):
-        return  (
-        ')=>',
-        )
 
 # Fish (long)
 class Barracuda(Fish):
+    LEFT  = ('<==^=-<',)
+    RIGHT = ('>-=^==>',)
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return  (
-        '<==^=-<',
-        )
-
-    def _right(self):
-        return  (
-        '>-=^==>',
-        )
 
 # Clock - displays time in 12-hr format
 class Clock(Fish):
@@ -716,53 +744,65 @@ class Clock(Fish):
 
 # Whale
 class Whale(Fish):
+    LEFT = (                            
+        ' _--.-^---_____/',
+        '(__`______===== ',
+        '    V          \\' )
+    RIGHT = (
+        '\\_____---^-.--_ ',
+        ' =====______`__)',
+        '/          V    '  )
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return (                            
-        ' _--.-^---_____/',
-        '(__`______===== ',
-        '    V          \\'               
-        )
-
-    def _right(self):
-        return (                            
-        '\\_____---^-.--_ ',
-        ' =====______`__)',
-        '/          V    '                
-        )
 
 # Baby Whale
 class BabyWhale(Fish):
+    LEFT = (
+        ' ________/',
+        '(__`u_===\\' )
+
+    RIGHT = (
+        '\\________ ',
+        '/===_u`__)' )
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return (                            
-        ' ________/',
-        '(__`u_===\\'     
-        )
-
-    def _right(self):
-        return (                            
-        '\\________ ',
-        '/===_u`__)'              
-        )
 
 # Jellyfish
 class Jellyfish(MovingThing):
+    LEFT_0  = ('(=',)
+    LEFT_1  = ('{=',)
+    LEFT_2  = ('[=',)
+    LEFT_3  = ('|=',)
+    RIGHT_0 = ('=)',)
+    RIGHT_1 = ('=}',)
+    RIGHT_2 = ('=)',)
+    RIGHT_3 = ('=|',)
+
     def __init__(self, position, color):
+        MovingThing.__init__(self, position, color)
+        self.speed    = 1
+        self.maxspeed = 1
+
         # each jellyfish swims a little differently
         self.bell_0 = randint(6, 10)
         self.bell_1 = self.bell_0 + randint(1,3)
@@ -771,9 +811,14 @@ class Jellyfish(MovingThing):
         # start each jellyfish at a different part of the "stroke"
         self.bell = randint(0, self.bell_3)
 
-        MovingThing.__init__(self, position, color)
-        self.speed    = 1
-        self.maxspeed = 1
+        self.left_0  = self._colorPicture(self.LEFT_0, color)
+        self.left_1  = self._colorPicture(self.LEFT_1, color)
+        self.left_2  = self._colorPicture(self.LEFT_2, color)
+        self.left_3  = self._colorPicture(self.LEFT_3, color)
+        self.right_0 = self._colorPicture(self.RIGHT_0, color)
+        self.right_1 = self._colorPicture(self.RIGHT_1, color)
+        self.right_2 = self._colorPicture(self.RIGHT_2, color)
+        self.right_3 = self._colorPicture(self.RIGHT_3, color)
 
     @turn_around_water
     def move(self):
@@ -807,147 +852,113 @@ class Jellyfish(MovingThing):
 
     def left(self):
         if self.bell < self.bell_0:
-            return self.left_0()
+            return self.left_0
         elif self.bell < self.bell_1:
-            return self.left_1()
+            return self.left_1
         elif self.bell < self.bell_2:
-            return self.left_2()
+            return self.left_2
         elif self.bell < self.bell_3:
-            return self.left_3()
+            return self.left_3
 
     def right(self):
         if self.bell < self.bell_0:
-            return self.right_0()
+            return self.right_0
         elif self.bell < self.bell_1:
-            return self.right_1()
+            return self.right_1
         elif self.bell < self.bell_2:
-            return self.right_2()
+            return self.right_2
         elif self.bell < self.bell_3:
-            return self.right_3()
-
-    def left_0(self):
-        return (                            
-        '(=',
-        )
-    def left_1(self):
-        return (                            
-        '{=',
-        )
-    def left_2(self):
-        return (                            
-        '[=',
-        )
-    def left_3(self):
-        return (                            
-        '|=',
-        )
-
-    def right_0(self):
-        return (                            
-        '=)',
-        )
-    def right_1(self):
-        return (                            
-        '=}',
-        )
-    def right_2(self):
-        return (                            
-        '=)',
-        )
-    def right_3(self):
-        return (                            
-        '=|',
-        )
+            return self.right_3
 
 
 # Snail
 class Snail(BottomFeeder):
+    LEFT  = ('@',)
+    RIGHT = LEFT
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self.left_image
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return  (
-        '@',
-        )
-    def _right(self):
-        return  (
-        '@',
-        )
 
 # Sea Urchin
 class SeaUrchin(BottomFeeder):
+    LEFT = (
+        '  .w.  ',
+        '_\ | /_',
+        '> ,*, <' )
+
+    RIGHT = (
+        '  .v.  ',
+        '_\ | /_',
+        '> ,*, <' )
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
     def left(self):
         return self.left_image
     def right(self):
         return self.right_image
-    def _left(self):
-        return (                            
-        '  .w.  ',
-        '_\ | /_',
-        '> ,*, <'     
-        )
-
-    def _right(self):
-        return (                            
-        '  .v.  ',
-        '_\ | /_',
-        '> ,*, <'     
-        )
 
 # Lobster
 class Lobster(BottomFeeder):
+    LEFT_0  = ( '\./  ',
+                '>M=={',
+                '     '  )
+    LEFT_1  = ( '_|.  ',
+                '>M=={',
+                '     '  )
+    LEFT_2  = ( '\|.  ',
+                '>M=={',
+                '     '  )
+    RIGHT_0 = ( '  \./',
+                '}==M<',
+                '     '  )
+    RIGHT_1 = ( '  .|_',
+                '}==M<',
+                '     '  )
+    RIGHT_2 = ( '  .|/',
+                '}==M<',
+                '     '  )
+
     def __init___(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
+        self.left_0  = self._colorPicture(self.LEFT_0, color)
+        self.left_1  = self._colorPicture(self.LEFT_1, color)
+        self.left_2  = self._colorPicture(self.LEFT_2, color)
+        self.right_0 = self._colorPicture(self.RIGHT_0, color)
+        self.right_1 = self._colorPicture(self.RIGHT_1, color)
+        self.right_2 = self._colorPicture(self.RIGHT_2, color)
+
     def left(self):
         if randint(0,20) == 1:
-            return (                            
-            '\./  ',
-            '>M=={',
-            '     '       
-            )
+            return self.left_0
         elif randint(0,20) == 2:
-            return (                            
-            '_|.  ',
-            '>M=={',
-            '     '       
-            )
+            return self.left_1
         else:
-            return (                            
-            '\|.  ',
-            '>M=={',
-            '     '       
-            )
+            return self.left_2
 
     def right(self):
         if randint(0,20) == 1:
-            return (                            
-            '  \./',
-            '}==M<',
-            '     '       
-            )
+            return self.right_0
         elif randint(0,20) == 2:
-            return (                            
-            '  .|_',
-            '}==M<',
-            '     '       
-            )
+            return self.right_1
         else:
-            return (                            
-            '  .|/',
-            '}==M<',
-            '     '       
-            )
+            return self.right_2
+
 
 #----------------------------------- DEBRIS ------------------------------------
 
@@ -1066,9 +1077,11 @@ class NonMovingThing(Thing):
         # self.draw()
         self.getPicture()
 
+        self.colored_picture = self._colorPicture(self.picture, color)
+
     # Get the picture of the object in question, and assign LEFT or RIGHT picture
     def getPicture(self):
-        self.picture = self.image()
+        self.picture = self.IMAGE
         # Get size of the object's picture
         self.size = [ len(self.picture), len(self.picture[0]) ]
 
@@ -1118,6 +1131,23 @@ class Surface(object):
 
 # Dune Class
 class Dune(NonMovingThing):
+    # Needs to take into account "R" in image
+    def _colorPicture(self, picture, color):
+        # self.getPicture()
+        size = [ len(picture), len(picture[0]) ]
+        colored_picture = []
+        for y in range( size[0] ):
+            colored_row = []
+            for x in range( size[1] ):
+                if picture[y][x] == " ":
+                    colored_row.append(" ")
+                elif picture[y][x] == "R":
+                    colored_row.append("R")
+                else:
+                    colored_row.append(colored(picture[y][x], color))
+            colored_picture.append( tuple(colored_row) )
+        return tuple(colored_picture)
+
     # Draw the object, but omit the blank areas on the sides (which would create a blank box)
     def draw(self):
         # self.getPicture()
@@ -1129,20 +1159,19 @@ class Dune(NonMovingThing):
                     x + self.position[1] < (WIDTH-1) :
                     if self.picture[y][x] != 'R':        # edges of dune drawing should be ommitted
                         Aquarium.stage[ y + self.position[0] ][ x + self.position[1] ] \
-                        = colored(self.picture[y][x], self.color)
+                        = self.picture[y][x]
+                        # = colored(self.picture[y][x], self.color)
 
 # Dunes
 class SmallDune(Dune):
-    def image(self):
-        return (                            
+    IMAGE = (
         'RRR.~""~.RRR',
         'RR/; . . \RR',
         '~`; . . . `~'                
         )
 
 class BigDune(Dune):
-    def image(self):
-        return (                            
+    IMAGE = (
         'RRRRRRR,.~"""""~. ,RRRRRR',
         'RRRR/; . . . . . . .\RRRR',
         'RR/;. . . . . . . . . \RR',              
@@ -1150,8 +1179,7 @@ class BigDune(Dune):
         )
 
 class HugeDune(Dune):
-    def image(self):
-        return (                            
+    IMAGE = (
         'RRRRRR,.~"""""""~. ,RRRRRR',
         'RRRR/; . . . . . . .\RRRRR',
         'RR/;. . . . . . . . . \RRR',             
@@ -1161,8 +1189,7 @@ class HugeDune(Dune):
         )
 
 class SlopedDune(Dune):
-    def image(self):
-        return (                            
+    IMAGE = (
         'RRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRRRRRRRRR',
         'RRRRRR/; . . . . . . .\RRRRRRRRRRRRRRRRRRRRRRR',
         'RRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRRRRRRR',             
@@ -1174,8 +1201,7 @@ class SlopedDune(Dune):
         )
 
 class SlantedDune(Dune):
-    def image(self):
-        return (                            
+    IMAGE = (
         'RRRRRRRRRRRRRR,.~"""""""~.,RRRRRRRRRRRRRRRRRR',
         'RRRRRRRRRRR/;. . . . . . . \RRRRRRRRRRRRRRRRR',
         'RRRRRRRR/;. . . . . . . . . \RRRRRRRRRRRRRRRR',              
@@ -1189,43 +1215,36 @@ class SlantedDune(Dune):
 
 # Corals
 class TreeCoral(NonMovingThing):
-    def __init__(self, position, color):
-        self.image = choice([
-                            self._image1,
-                            self._image2,
-                           ])
-
-        NonMovingThing.__init__(self, position, color)
-
-        self.position = position
-        self.color = color
-        
-    def _image1(self):
-        return (                            
+    IMAGE_1 = (
         '-_   \/',
         ' \/ -/-',
         '  \ /  ',                
-        '   |-  ',                
-        )
+        '   |-  ', )
 
-    def _image2(self):
-        return (                            
+    IMAGE_2 = (
         '_|/ |/ ',
         '  \|/  ',                
-        '   |   ',                
-        )
+        '   |   ', )
+
+    def __init__(self, position, color):
+        self.position = position
+        self.color = color
+        self.IMAGE = choice([
+                            self.IMAGE_1,
+                            self.IMAGE_2,
+                           ])
+        self.colored_picture = self._colorPicture(self.IMAGE, color)
+
+        NonMovingThing.__init__(self, position, color)
 
 class BrainCoral(NonMovingThing):
-    def image(self):
-        return (
+    IMAGE = (
         '    ,#&.   ',
         ' *#*@*@@&*.',                
-        '*@@*&*@**%&',                
-        )
+        '*@@*&*@**%&', )
 
 class Kelp(NonMovingThing):
-    def image(self):
-        return (
+    IMAGE = (
         ' V ',                
         ' | ',                
         ' |/',                
@@ -1242,8 +1261,7 @@ class Kelp(NonMovingThing):
         )
 
 class LongKelp(NonMovingThing):
-    def image(self):
-        return (
+    IMAGE = (
         ' V ',                
         ' | ',                
         '\| ',                
