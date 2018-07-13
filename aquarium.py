@@ -311,7 +311,6 @@ class Thing(object):
 
     # Get the picture of the object in question, and assign LEFT or RIGHT picture
     def getPicture(self):
-        #self.picture = self.right()
         if self.direction[1] < 0:
             self.picture = self.left()
         elif self.direction[1] > 0:
@@ -323,7 +322,6 @@ class Thing(object):
             self.size = [0,0]
 
     def _colorPicture(self, picture, color):
-        # self.getPicture()
         size = [ len(picture), len(picture[0]) ]
         colored_picture = []
         for y in range( size[0] ):
@@ -338,7 +336,6 @@ class Thing(object):
 
     # Draw the object
     def draw(self):
-        # self.getPicture()
         for y in range( self.size[0] ):
             for x in range( self.size[1] ):
                 if  y + self.position[0] > 0 and \
@@ -738,9 +735,11 @@ class Clock(Fish):
         minute      = now.minute
         second      = now.second
         ampm        = now.strftime('%p').lower()
-        return  (
-        '{}:{:02d} {}'.format(hour, minute, ampm),
-        )
+        return \
+            self._colorPicture(
+                ('{}:{:02d} {}'.format(hour, minute, ampm),) ,
+                self.color
+            )
     def right(self):
         return self.left()
 
@@ -1008,9 +1007,9 @@ class Bubble(Debris):
         self.ampm        = now.strftime('%p').lower()
 
         try:
-            self.word = (u"{}".format(choice(word_list)).replace("'s",""),)
+            self.WORD = (u"{}".format(choice(word_list)).replace("'s",""),)
         except:
-            self.word = ("puppies",)
+            self.WORD = ("puppies",)
 
         # choose between possible bubble images
         self_images = [
@@ -1020,7 +1019,7 @@ class Bubble(Debris):
                       ]
 
         if word_bubbles == True:
-            self_images.append([self.word, self.word])
+            self_images.append([self.WORD, self.WORD])
 
         self.LEFT, self.RIGHT = choice(self_images)
 
@@ -1060,7 +1059,6 @@ class Bubble(Debris):
 # Nonmoving things (sand features, rocks, etc.)
 class NonMovingThing(Thing):
     def __init__(self, position, color):
-        # self.size = size          # [y,x]
         self.position = position    # [y,x]
         self.color = color
 
@@ -1223,8 +1221,6 @@ class TreeCoral(NonMovingThing):
                             self.IMAGE_1,
                             self.IMAGE_2,
                            ])
-        # self.picture = self._colorPicture(self.IMAGE, color)
-
         NonMovingThing.__init__(self, position, color)
 
 class BrainCoral(NonMovingThing):
