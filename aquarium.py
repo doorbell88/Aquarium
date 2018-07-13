@@ -81,9 +81,9 @@ all_possible_colors = ['red','green','blue','cyan','magenta','yellow','white']
 window_colors                   = ['blue','cyan']
 water_colors                    = ['cyan']
 bubble_colors                   = ['cyan']
-sand_colors                     = ['yellow','white','red','magenta','green']#,'grey']
-kelp_colors                     = [x for x in all_possible_colors if x != 'grey']
-coral_colors                    = all_possible_colors
+sand_colors                     = ['yellow','red','magenta','green']#,'white','grey']
+kelp_colors                     = [x for x in all_possible_colors if x not in ('white', 'grey')]
+coral_colors                    = [x for x in all_possible_colors if x not in ('white', 'grey')]
 creature_colors                 = all_possible_colors
 lobster_colors                  = ['red','magenta']
 snail_colors                    = all_possible_colors
@@ -1719,13 +1719,8 @@ class Generator(object):
                     color = choice(color_list)
                     current_item = species([y,x], color)
 
-                    # To get size of current species being drawn
-                    if i == 0:
-                        current_item.getPicture()
-                        current_item_size = current_item.size
-
                     y = randint(pos_bounds[0][0], pos_bounds[0][1])
-                    x = randint(pos_bounds[1][0], pos_bounds[1][1] - current_item_size[1])
+                    x = randint(pos_bounds[1][0], pos_bounds[1][1] - current_item.size[1])
                     current_item.position = [y,x]
                     gen_list.append(current_item)
 
@@ -2336,6 +2331,7 @@ remove_peripherals(BG_List, MG_List, FG_List)
 
 #set eveything so far as the background environment
 Aquarium.background = deepcopy(Aquarium.stage)
+
 
 
 #------------------------------ CREATE ECOSYSTEM -------------------------------
