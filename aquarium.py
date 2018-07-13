@@ -33,6 +33,12 @@ WIDTH  = int( subprocess.check_output(['tput','cols']) )
 HEIGHT = int( subprocess.check_output(['tput','lines']) ) - 1
 VOLUME = WIDTH * HEIGHT
 
+# check Python version (for defining how to lookup unicode characters)
+if sys.version_info[0] < 3:
+    degree_symbol = unichr(176)    # For drawing bubbles
+else:
+    degree_symbol = chr(176)       # For drawing bubbles
+
 
 #================================= CUSTOMIZE ===================================
 
@@ -340,7 +346,7 @@ class Thing(object):
                     x + self.position[1] > 0 and \
                     x + self.position[1] < (WIDTH-1) and \
                     self.picture[y][x] != " " :          # Avoids drawing a blank box around thing
-                        Aquarium.stage[ int(y + self.position[0]) ]\
+                        Aquarium.stage[ int(y + self.position[0]) ] \
                                       [ int(x + self.position[1]) ] \
                         = self.picture[y][x]
 
@@ -961,6 +967,33 @@ class Lobster(BottomFeeder):
 
 # Bubbles!
 class Bubble(Debris):
+    LEFT_0 = (
+        'o O',
+        ' : ',
+        )
+    RIGHT_0 = (
+        'o .',
+        '.%s ' %(degree_symbol),
+        ) 
+    LEFT_1 = (
+        'o. ',
+        '   ',
+        ' .%s' %(degree_symbol),
+        )
+    RIGHT_1 = (
+        ' o.',
+        '.  ',
+        '  .',
+        ) 
+    LEFT_2 = (
+        '%s :' %(degree_symbol),
+        ' . ',
+        )
+    RIGHT_2 = (
+        ' %s:' %(degree_symbol),
+        '.  ',
+        ) 
+
     def __init__(self, position, color):
         global word_bubbles
 
@@ -975,67 +1008,36 @@ class Bubble(Debris):
         self.ampm        = now.strftime('%p').lower()
 
         try:
-            self.word = u"{}".format(choice(word_list)).replace("'s","")
+            self.word = (u"{}".format(choice(word_list)).replace("'s",""),)
         except:
-            self.word = "puppies"
+            self.word = ("puppies",)
 
         # choose between possible bubble images
         self_images = [
-                        [self._left1, self._right1],
-                        [self._left2, self._right2],
-                        [self._left3, self._right3]
+                        [self.LEFT_0, self.RIGHT_0],
+                        [self.LEFT_1, self.RIGHT_1],
+                        [self.LEFT_2, self.RIGHT_2]
                       ]
 
         if word_bubbles == True:
-            self_images.append([self._words, self._words])
+            self_images.append([self.word, self.word])
 
-        self.left, self.right = choice(self_images)
+        self.LEFT, self.RIGHT = choice(self_images)
 
         Debris.__init__(self, position, color)
+
+        self.left_image  = self._colorPicture(self.LEFT, color)
+        self.right_image = self._colorPicture(self.RIGHT, color)
 
         self.maxspeed = 1
         self.position = position
         self.color = color
         self.direction = [-1,0]     # float up
 
-
-    # First set of bubble images
-    def _left1(self):
-        return  (
-        'o O',
-        ' : ',
-        )
-    def _right1(self):
-        return  (
-        'o .',
-        '.%s ' %(degree_symbol),
-        ) 
-
-    # Second set of bubble images
-    def _left2(self):
-        return  (
-        'o. ',
-        '   ',
-        ' .%s' %(degree_symbol),
-        )
-    def _right2(self):
-        return  (
-        ' o.',
-        '.  ',
-        '  .',
-        ) 
-
-    # Third set of bubble images
-    def _left3(self):
-        return  (
-        '%s :' %(degree_symbol),
-        ' . ',
-        )
-    def _right3(self):
-        return  (
-        ' %s:' %(degree_symbol),
-        '.  ',
-        ) 
+    def left(self):
+        return self.left_image
+    def right(self):
+        return self.right_image
 
     # Bubble shows the time
     def _clock(self):
@@ -1052,11 +1054,6 @@ class Bubble(Debris):
         '{} {}'.format(self.month_name, self.day),
         )
 
-    # Random words
-    def _words(self):
-        return  (
-        '{}'.format(self.word),
-        )
 
 #------------------------------ NONMOVING THINGS -------------------------------
 
@@ -2288,12 +2285,6 @@ def reduce_ecosystem(count):
 FarawayObject = type('test', (object,), {})()
 FarawayObject.position = [-1000, -1000]
 FarawayObject.size = [0,0]
-
-# check Python version (for defining how to lookup unicode characters)
-if sys.version_info[0] < 3:
-    degree_symbol = unichr(176)    # For drawing bubbles
-else:
-    degree_symbol = chr(176)       # For drawing bubbles
 
 # Prepare the dictionary for word bubbles (if set)
 if word_bubbles == True:
