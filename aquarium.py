@@ -332,7 +332,7 @@ class Thing(object):
 
     # Draw the object
     def draw(self):
-        self.getPicture()
+        # self.getPicture()
         for y in range( self.size[0] ):
             for x in range( self.size[1] ):
                 if  y + self.position[0] > 0 and \
