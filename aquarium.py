@@ -57,7 +57,7 @@ clock_fish                      = False
 explorer_school                 = False
 
 # Generate random word bubbles
-word_bubbles                    = True      # "bubbles" must be True to work
+word_bubbles                    = False     # "bubbles" must be True to work
 word_file                       = "/usr/share/dict/words"
 
 # print info about aquarium (can be toggled with ctrl-\)
@@ -115,9 +115,9 @@ bubble_frequency                = 30     # (higher number means less frequent)
 all_school_types = ['Monarch','Tree','Line','Circle','Neighbor','ShyNeighbor']
 #...............................................................................
 school_types                    = all_school_types
-max_fish                        = VOLUME // 100
+max_fish                        = VOLUME // 200
 min_fish_per_school             = 5
-number_of_sea_monkey_schools    = randint( 2 , 8 )
+number_of_sea_monkey_schools    = randint( 2 , 5 )
 number_of_minnow_schools        = randint( 1 , number_of_sea_monkey_schools/2 )
 # ... independent swimmers
 number_of_whales                = randint( 0 , 1 ) if VOLUME > 1500 else 0
@@ -129,9 +129,9 @@ number_of_minnows               = randint( 0 , 4 )
 number_of_seamonkeys            = randint( 0 , 4 )
 number_of_jellyfish             = randint( 4 , 10 )
 # ... bottomfeeders
-number_of_snails                = randint( 1*scale , 3*scale )
-number_of_sea_urchins           = randint( 1*scale , 2*scale )
-number_of_lobsters              = randint( 1*scale , 2*scale )
+number_of_snails                = randint( 1 , 3*scale )
+number_of_sea_urchins           = randint( 1 , 2*scale )
+number_of_lobsters              = randint( 1 , 2*scale )
 
 #===============================================================================
 
