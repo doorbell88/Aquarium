@@ -585,7 +585,7 @@ class BottomFeeder(MovingThing):
 
 # Fish (smallest)
 class SeaMonkey(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
     
@@ -612,7 +612,7 @@ class SeaMonkey(Fish):
 
 # Fish (small)
 class Minnow(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
 
@@ -627,7 +627,7 @@ class Minnow(Fish):
 
 # Fish (medium)
 class AngelFish(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
@@ -642,7 +642,7 @@ class AngelFish(Fish):
 
 # Fish (large)
 class Tuna(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
 
@@ -657,7 +657,7 @@ class Tuna(Fish):
 
 # Fish (long)
 class Barracuda(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
 
@@ -673,7 +673,7 @@ class Barracuda(Fish):
 
 # Clock - displays time in 12-hr format
 class Clock(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 2
 
@@ -700,7 +700,7 @@ class Clock(Fish):
 
 # Whale
 class Whale(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
@@ -720,7 +720,7 @@ class Whale(Fish):
 
 # Baby Whale
 class BabyWhale(Fish):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
@@ -837,7 +837,7 @@ class Jellyfish(MovingThing):
 
 # Snail
 class Snail(BottomFeeder):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
@@ -852,7 +852,7 @@ class Snail(BottomFeeder):
 
 # Sea Urchin
 class SeaUrchin(BottomFeeder):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
@@ -872,7 +872,7 @@ class SeaUrchin(BottomFeeder):
 
 # Lobster
 class Lobster(BottomFeeder):
-    def __init___(self, position, color):
+    def __init__(self, position, color):
         MovingThing.__init__(self, position, color)
         self.maxspeed = 1
 
